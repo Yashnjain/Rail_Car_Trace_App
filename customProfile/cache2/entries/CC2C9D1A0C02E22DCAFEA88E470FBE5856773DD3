@@ -1,0 +1,737 @@
+/* CSS Document for Steelroads, created 09-03-2003, author: Adrian Pomilio, copyright: Railinc */
+
+/* link definitions */
+a, a:visited, a:linked {font-familiy: arial, helvetica, serif;
+   font-size: 12px;
+   color: blue;
+   text-decoration: none;
+   }
+a:hover {text-decoration: underline; color: red;}
+/*a:active {color: red;}*/
+form {margin:0; padding:0;}
+.helpBut {font: 10px Arial; text-align:right; text-transform: lowercase;}
+.backBut {font: 10px Arial; text-align:right; text-transform: lowercase;}
+/* body definitions */
+body {background-color: #ffffff;
+	  font-family: Arial, Helvetica, sans-serif;
+	  margin: 0;
+	  padding: 0;
+	  font-size: 12px;}
+	  
+
+/* font look and feel definitions */
+p {font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: black;
+	}
+div#appArea p{width:550px;}	
+ul li {font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: black;}
+
+h1, h2, h3, h4, h5 {font-family: Arial, Helvetica, sans-serif; color: #2f4f4f; margin: 0.25em 0 0 0;}
+h1 {font-size: 16pt;}
+h2 {font-size: 14pt;}
+h3 {font-size: 12pt;}
+h4 {font-size: 10pt;}
+
+th {font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	text-align: center;
+	background-color: #0066CC;
+	color: #f0ffff;
+	text-decoration: none;
+	padding: 2px 10px 2px 10px;
+	border: 1px solid black;
+}
+
+td {font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #000000;
+ }
+	
+	
+.data {font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        color: #000000;
+        border: 1px solid grey;
+        padding: 2px;}
+		
+/* controls broders around data tables */
+table#dataDisplay {margin: .5em 0 .5em 0; padding: 0; border: 1px solid black; border-collapse:collapse;}
+
+table#dataDisplay  tr { padding: 0; font border: 1px solid black; border-collapse:collapse;}
+
+table#dataDisplay tr td{ padding: 4; border: 1px solid black; border-collapse:collapse;}
+
+
+
+
+/* style classes for controlling the look and feel */
+
+/* classes to define the look of form elements */
+.attr_txtarea {width: 350px;}
+
+			
+.nav_input_button {font: 10px Arial, Helvetica, sans-serif;
+			margin: 0;
+			background: gray; 
+			border: 1px solid;
+			border-color: #fff #993 #993 #fff; color:white;}
+
+/* used for table data rollover effect */
+   
+.dataMouseOver { font-family: Arial, Helvetica, sans-serif;
+	font-size : 10px;
+	font-style : normal;
+	background-color: #ffffff;
+	color: #ffffff;
+	 }
+.dataMouseOut { font-family: Arial, Helvetica, sans-serif;
+	font-size : 10px;
+	font-style : normal;
+	background-color: #f5f5dc;
+	color: #006699;
+	 }
+/* used for defining important or mandatory information */
+.important {
+	color : red;
+	font-size: 12pt;
+	font-family : Arial, Helvetica, sans-serif;
+}
+/*  Start code change for GNATS No 5158 by Raj on 19th Feb 2004 -used for highlighting information */
+.highlight {
+	color : red;
+	font-size: 9pt;
+	font-family : Arial, Helvetica, sans-serif;
+}
+/* End code change for GNATS No 5158 by Raj on 19th Feb 2004 */
+
+/* .mandatory	{font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-weight : bold;
+	color :red;} */
+
+.mandatory:after	{
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-weight : bold;
+	color: red;
+	content: ' *';
+    display:inline;}
+/* used for SI, places border around table blocks */
+.block {border: 1px solid black; margin: .25em; width:720px;}
+/* below Classes and ID's relate to each other */
+/* Start code change for GNATS No 8574 by Pradeepa on 20/01/2004 */
+div#wrapper { display: block; width:1060px;}
+/* End code change for GNATS No 8574 by Pradeepa on 20/01/2004 */
+div#appArea {top:1px; left:0px; margin: 0 0em 0em 0em;padding: 0 0 0 0em;
+vertical-align:top; color: #696969; background-color:#fff; }
+/* used for left hand menus, except si */
+
+/* Start code change for GNATS No 7428 by Pradeepa on 20/01/2004 */
+/* Start code change for GNATS No 4800 by Pradeepa on 17-May-2004 */
+div#leftNavLook {float:left; top:1px; left:0; width: 150px; vertical-align:top; 
+   background-color: white;
+   border: 1px solid black; margin: 0 3em 10em 0  ;}
+/* End code change for GNATS No 4800 by Pradeepa on 17-May-2004 */
+/* End code change for GNATS No 7428 by Pradeepa on 20/01/2004 (Margin added by Raj on 19/02/2004)*/
+div#leftNavLook a {display: block; padding: 2px 4px; margin: 0; 
+   text-decoration: none; text-align: left;
+   border-top: 1px solid gray;}
+div#leftNavLook a:hover {background: #0066CC; color: white;}
+div#leftNavLook h4 {background: black; color: white;
+   text-align: center; margin: 0; padding: 0.25em 0 0.125em 0;}
+   
+/* used for si nav */
+div#siNavLook {float:left; top:1px; left:0; width: 140px; vertical-align:top; 
+   font-size: 8px; background-color: white;
+/* Start code change for GNATS No 7428 by Pradeepa on 19/02/2004 */
+   border: 1px solid black; margin: 0 0em 10em 0 ; height=100%}
+/* End code change for GNATS No 7428 by Pradeepa on 19/02/2004 */
+
+div#siNavLook a {display: block; padding: 2px 4px; margin: 0; 
+   text-decoration: none; text-align: left;
+   border-top: 1px solid gray;}
+div#siNavLook a:hover {background: #0066CC; color: white;}
+div#siNavLook h4 {background: black; color: white;
+   text-align: center; margin: 0; padding: 0.25em 0 0.125em 0;}
+div#siNavLook span {display: block; padding: 2px 4px; margin: 0; 
+   text-decoration: none; text-align: left; font-size: 12px;
+   border-top: 1px solid gray; background: #0066CC; color: white;}
+   
+/* used for si pattern nav */
+div#siPatternNavLook {float:left; top:1px; left:0; width: 190px; vertical-align:top; 
+   font-size: 10px; background-color: white;
+   border: 1px solid black; margin: 0;}
+div#siPatternNavLook form select {width: 190px;}
+div#siPatternNavLook a {display: block; padding: 2px 4px; margin: 0; 
+   text-decoration: none; text-align: left;
+   border-top: 1px solid gray;}
+div#siPatternNavLook a:hover {background: #0066CC; color: white;}
+div#siPatternNavLook h4 {background: black; color: white;
+   text-align: center; margin: 0; padding: 0.25em 0 0.125em 0;}
+div#siPatternNavLook span {display: block; padding: 2px 4px; margin: 0; 
+   text-decoration: none; text-align: left; font-size: 10px;
+   border-top: 1px solid gray; background: #0066CC; color: white;}
+/* top site nav */
+div.menubar, div.menubar a:button {font: 10px arial,helvetica,sans-serif; text-decoration: none; color: blue;}
+div.menubar {position:relative; display:block; background:silver; padding: 4px 2px; margin: 0; width:100%; height: 35px; text-align: left; border-bottom:1px solid gray;}
+div.menubar a.button{ color: black; background:transparent; cursor: default; left: 0px; top: 0px; margin:1px; padding: 1px 4px; position: relative; z-index: 100;}
+div.menubar a.button:hover {background: #0066CC; color:white;}
+div.menubar a.active, div.menubar a.active:hover {background: #0066CC; color:red;}
+/* generic site navigation */
+div#genericNav, div#genericNav a:gnav {font: 10px arial,helvetica,sans-serif; text-decoration: none; color: blue;}
+div#genericNav {position:relative; right: 0; display:block; background:black; padding: 0; margin: 0; width:100%; text-align: right; }
+div#genericNav a.gnav{ color: white; background:transparent; cursor: default; left: 0px; top: 0px; margin:1px; padding: 1px 4px; position: relative; z-index: 100;}
+div#genericNav a.gnav:hover {background: #0066CC; color:white;}
+div#genericNav a.active, div.genericNav a.active:hover {background: #0066CC; color:white;}
+
+#newsScroller {display: block; overflow: auto; height: 150px; width: 500px;
+    clip:  rect(   ); border: 1px solid gray;
+}
+
+#login {float:left; top:1px; left:2px; padding:5px; width: 150px; vertical-align:top; 
+   font-size: 11px; background-color: white; }
+
+.lbutton {font-size:10px;}
+
+div#footer {
+	display: block;
+	font-size: 1em;
+    padding: 0.5em 1em 0.25em; width: auto;
+   margin-top: 1em;
+   clear: both;}
+
+.pageNumbers, .nextBut {text-align: right;}
+.roadLogos{display: block;}
+.roadLogosLook {display:inline; height:75px; width:75px; background-color:white; }
+
+.bannerLook {
+	display: block;
+	position:relative;
+	width:100%;
+	background-color: #0066CC;
+	padding:0;
+	margin:0;}
+#logo {margin:0; background:black;}
+
+
+
+/* Used to highlight areas of note */	
+.notice {font-family : Arial, Helvetica, sans-serif;
+
+		font-size : 12px;
+		font-weight : bold;
+		color :red;}
+		
+/* Used by ATTR in the create a shipment trace section */	
+.regboxes	{font-family : Arial, Helvetica, sans-serif;
+			font-size : 12px;
+			font-weight : bold;
+			color :black;}
+
+/* Used when text needs to be made smaller than surrounding text */		
+.smalltext { font-family: Arial, Helvetica, sans-serif;
+			font-size : 10px;
+			font-style : normal;
+			color: #000000;}
+			 
+/* Used to highlight user steps in an application */		 
+.steps { font-family: Arial, Helvetica, sans-serif;
+		font-size : 12px;
+		font-style : normal;
+		background-color: rgb(100%,100%,100%);
+		color: #000000;}
+
+/* Used to highlight superuser only areas */
+.superuser	{font-family : Arial, Helvetica, sans-serif;
+			font-size : 12px;
+			font-weight : bold;
+			color :green;}
+
+/* Used as a replacement for header tags when space is at a premium */	 
+.title {color : #002c84;
+		font-size: 14px;
+		font-family : Arial, Helvetica, sans-serif;}
+	
+
+/* Order Services Specific Id's Classes Styles */
+	
+#withBGC {font-size: 10px;
+			font-family: Helvetica;
+			color: #666600;
+			background-color: #f5f5dc;}
+
+#withFGC {font-size: 10px;
+			font-family: Helvetica;
+			color: #cc0000;
+			background-color: #f5f5dc;}
+
+
+.input_text {font: 12px Arial;}
+
+.input_button {font-size:10px; padding:1px; margin:1px;}
+.security_button {font-size:12px; padding:1px; margin:1px;}
+.siBut {font-size:10px; padding:1px; margin:1px;}
+ 
+option {font: 12px Arial;}
+
+/*Start Code Added by Renga for CR017 on Sep-27-2004 */
+.separator {background-color: #0066CC;}
+
+/* Added with HEAT35888 by T. Hill 20050125 */
+.logoContainer
+{
+	padding-right: 7px;
+}
+
+/******************************************************************************
+Shipment Trace styles added 200403
+T. Hill
+******************************************************************************/
+
+/***** General *****/
+
+.center {	
+	text-align: center;
+}
+
+.emphasis {
+	font-style: italic ! important;
+}
+
+.border {
+	border: 1px solid #cccccc;
+}
+
+/***** Text (labels, instructions, etc.) *****/
+
+.instructions {
+	font-size: 12px;
+	padding: 4px 4px 4px 4px;
+}
+
+.instructionsSmall {
+	font-size: 10px; 
+	padding: 4px 4px 4px 4px;
+}
+
+.instructionsStrong {
+	font-size: 12px;
+	font-weight: bold;
+	padding: 4px 4px 4px 4px;
+}
+
+span.instructions {
+	font-size: 12px;
+}
+
+span.instructionsSmall {
+	font-size: 10px; 
+}
+
+span.instructionsStrong {
+	font-size: 12px;
+	font-weight: bold;
+}
+
+/***** Tables *****/
+
+table.borderBottom tr td {
+	border-bottom: 1px solid #cccccc;
+}
+
+table.dataDisplayST, table.dataDisplaySTBox {
+	margin: 0px 5px 5px 5px; 
+	border-collapse: collapse;
+	border-spacing: 0px; 
+}
+
+table.dataDisplayST td {
+	border-bottom: 1px solid #cccccc;
+	padding: 1px 1px 1px 1px;
+}
+
+table.dataDisplaySTBox td {
+	border: 1px solid #cccccc;
+	padding: 1px 1px 1px 1px;
+}
+
+table.dataDisplaySTNoBranding th {
+	background-color: #ffffff;
+	border-top: none;
+	border-left: none;
+	border-bottom: none;
+	border-right: 1px solid #cccccc;
+	font-size: 11px;
+	color: #000000;
+	text-align: right;
+	padding-right: 4px;
+	padding-bottom: 4px;
+}
+
+table.dataDisplaySTNoBrandingCenter th {
+	background-color: #ffffff;
+	border-top: none;
+	border-left: none;
+	border-bottom: 1px solid #cccccc;
+	border-right: none;
+	font-size: 11px;
+	color: #000000;
+	text-align: center;
+	padding-bottom: 4px;
+}
+
+table.dataDisplaySTNoBranding td {
+	background-color: #ffffff;
+	font-size: 11px;
+	text-align: left;
+	padding-left: 4px;
+	padding-bottom: 4px;	
+}
+
+/***** Grouping for input and label/instruction markup *****/
+
+.searchGroup {
+	border: 1px solid #b6b6b6; 
+	margin-left: 2px;
+}
+
+/***** Accumulator/Collector *****/
+
+.scrollAccumulator {
+	overflow: auto;
+	width: 190px;
+	height: 110px;
+	border: 1px solid #999999;
+	background-color: #ffffff;
+}
+
+.scrollAccumulatorLarge {
+	overflow: auto;
+	width: 300px;
+	height: 110px;
+	border: 1px solid #999999;
+	background-color: #ffffff;
+}
+
+.scrollAccumulatorExtraLarge {
+	overflow: auto;
+	width: 600px;
+	height: 110px;
+	border: 1px solid #999999;
+	background-color: #ffffff;
+}
+
+.scrollCollector {
+	overflow: auto;
+	width: 160px;
+	height: 90px;
+	border: 1px solid #999999;
+	background-color: #ffffff;	
+}
+
+.scrollAccumulator select, .scrollAccumulatorLarge select, .scrollAccumulatorExtraLarge select, .scrollCollector select {
+	background-color: #ffffff;	
+}
+
+/* Accumulator icon groups */
+.iconGroup img {
+	margin: 2px 2px 2px 2px;
+}
+
+.iconGroup br {
+	margin: 0px;
+	padding: 0px;	
+}
+
+/***** Filter groups *****/
+
+/* Filter group collapsed */
+.filterGroup {
+	display: none;
+	visibility: hidden; 
+	padding: 5px 0px 5px 0px;
+}
+
+/* Filter group opened */ 
+.filterGroupOn {
+	display: block;
+	visibility: visible; 
+	padding: 5px 0px 5px 0px;
+}
+
+/* Unselected filter group header */
+.groupHeader {
+	background-color: #b6b6b6;
+	font-weight: bold;
+	color: #ffffff;
+	padding: 2px 5px 2px 5px;
+	margin: 2px 0px 0px 0px;
+}
+
+/* Selected filter group header */
+.groupHeaderOn {
+	background-color: #0066cc;
+	font-weight: bold;
+	color: #ffffff;
+	padding: 2px 5px 2px 5px;
+	margin: 2px 0px 0px 0px;
+}
+
+.groupHeaderOnNoBranding {
+	background-color: #666666;
+	font-weight: bold;
+	color: #ffffff;
+	padding: 2px 5px 2px 5px;
+	margin: 2px 0px 0px 0px;
+}
+
+/**** Tabs *****/
+
+/* General tab container */
+.tabContainer {
+	background-color: #ffffff;
+	padding: 5px 0px 5px 0px;
+	border-bottom: 2px solid #0066cc;
+}
+
+/* General tab panel container*/
+#tabBodyContainer {
+	/* Height set by setTabBodyContainerHeight() per browser version */
+	padding: 5px 0px 10px 0px;
+	background-color: #eeeeee;
+	border: 1px solid #0066cc; 
+}
+
+/* Trace Define - Filter tab subtab container */
+#filterGroupTabContainer {
+	display: block;
+	background-color: #eeeeee;
+	padding: 7px 0px 5px 0px;
+	border-bottom: 4px solid #0066cc;
+}
+
+/* Trace Define - Filter tab subtab panel container */
+#tabBodyFilterContainer {
+	padding: 5px 0px 10px 0px; 
+}
+
+/* General tab */
+.tabMenuItem {
+	display: inline;
+	background-color: #b6b6b6;
+	color: #ffffff;
+	font-weight: bold;
+	padding: 5px 5px 5px 5px;
+	margin: 0px 5px 0px 5px;
+}
+
+/* Text in the header of a tab panel */
+.tabHeader {
+	font-weight: bold;
+}
+
+/* Tab text */
+.tabMenuItem a, .tabMenuItem a:active, .tabMenuItem  a:hover, .tabMenuItem a:visited, .tabMenuItemOn a, .tabMenuItemOn a:active, .tabMenuItemOn  a:hover, .tabMenuItemOn a:visited {
+	color: #ffffff ! important;
+	font-size: 11px;
+	text-decoration: none;	
+}
+
+/* Active tab */
+.tabMenuItemOn {
+	display: inline;
+	background-color: #0066cc;
+	color: #ffffff;
+	font-weight: bold;
+	padding: 5px 5px 5px 5px;
+	margin: 0px 5px 0px 5px;
+}
+
+/***** Elements under tabs in border of tab panel *****/
+
+.actionRow {
+	background-color: #0066cc;
+	border: 2px solid #0066cc;
+}
+
+.actionRowText, .actionRowText a, .actionRowText a:active, .actionRowText a:hover, .actionRowText a:visited  {
+	font-size: 11px;
+	color: #ffffff ! important;
+	font-weight: bold;
+	text-decoration: none;	
+	vertical-align: middle;
+}
+
+.actionTopButton {
+	font-size: 9px; 
+	padding: 1px 1px 1px 1px; 
+	margin: 0px 1px 0px 1px;
+}
+
+/***** General action buttons *****/
+
+/* General action area */
+.action {
+	text-align: center;
+	margin: 0px 0px 0px 0px;
+}
+
+/* Button */
+.actionButton {
+	font-size: 9px; 
+	padding: 1px 1px 1px 1px; 
+	margin: 0px 7px 0px 7px;
+}
+
+/***** Dividers *****/
+
+hr, hr.long {
+	background-color: gray; /* Gecko */
+	color: gray; /* IE */
+	border: 0; /* Gecko */
+	height: 1px; /* IE */
+}
+
+hr.short {
+	background-color: gray; /* Gecko */
+	color: gray; /* IE */
+	border: 0; /* Gecko */
+	height: 1px; /* IE */
+	width: 10px;
+}
+
+/***** Trace Define - trace information header above tabs *****/
+.traceInfo {
+	border-top: 1px solid #cccccc; 
+	border-bottom: 1px solid #cccccc; 
+	padding: 2px 0px 2px 0px;
+	margin-bottom: 4px;
+}
+
+/***** Trace results *****/
+
+/* Clickable trace report headers */
+.resultsHeader, .resultsHeader a, .resultsHeader a:hover, .resultsHeader a:visited, .resultsHeader a:active {
+	font-weight: bold; 
+	text-decoration: none;
+	background-color: #0066CC; 
+	color: #ffffff ! important;
+}
+
+.resultsHeaderNoBranding {
+	font-weight: bold; 
+	text-decoration: none;
+	background-color: #666666; 
+	color: #ffffff ! important;
+}
+
+.resultsHeaderNoBranding a, .resultsHeaderNoBranding a:hover, .resultsHeaderNoBranding a:visited, .resultsHeaderNoBranding a:active {
+	font-weight: bold; 
+	text-decoration: underline;
+	background-color: #666666; 
+	color: #ffffff ! important;
+}
+
+/* Report data */
+pre {
+	padding: 0px;
+	margin: 0px;
+}
+
+/* Drilldown */
+pre a, pre a:hover, pre a:visited, pre a:active {
+	text-decoration: none;	
+}
+
+
+
+/* controls the look of the working banner */
+#Working { font-family: Arial;
+	 font-size: 2.5em;
+	 text-align:center;
+	 font-weight: bold;
+	 color: #000;
+	 text-decoration: none; 
+	 background-color: #ffffff;
+	 z-index: 50;
+	 padding-top:150px;
+	 height:350px;
+	 background-image: url("/images/loading.gif");
+	 background-repeat: no-repeat;
+	 background-position: bottom center;
+}
+
+/******************************************************************************
+OLD - HOLD ON TO
+******************************************************************************/
+
+/* Sortable - NOT USED
+
+table.sortable, table.preview {
+	margin: 5px 5px 5px 5px;
+	border-collapse: collapse;
+	border-spacing: 0px; 
+	border: 1px solid #000000;
+}
+
+table.sortable th, table.sortable th a.sortheader, table.preview th, table.preview th a.sortheader {
+	font-size: 11px;
+	font-weight: bold;
+   color: #ffffff;	
+}
+	
+table.sortable th, table.preview th {
+   font-size: 10px;
+   text-align: center;
+   text-decoration: none;
+   padding: 2px 2px 2px 2px;
+   border: 1px solid #000000;
+   border-bottom: 1px solid #000000;
+}
+
+table.sortable td, table.preview td {
+   padding: 2px 1px 2px 1px;
+} 
+
+*/
+
+#tabBodyEquipmentTrace {
+	/* Height set by setTabBodyContainerHeight() per browser version */
+	padding: 5px 0px 10px 0px;
+	background-color: #eeeeee;
+	border: 1px solid #0066cc; 
+}
+
+ ð@3&ž      d6mêd6mêEynd8:   g    O^partitionKey=%28https%2Crailinc.com%29,:https://steelroads.railinc.com/branding/steelroads/master.css strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 OK
+content-type: text/css
+content-length: 18781
+date: Mon, 10 Apr 2023 11:02:51 GMT
+vary: Origin,Access-Control-Request-Method,Access-Control-Request-Headers
+last-modified: Thu, 09 Mar 2023 20:44:21 GMT
+accept-ranges: bytes
+x-envoy-upstream-service-time: 4
+server: istio-envoy
+x-auth-envoy-filter-passthrough: yes
+x-cache: Miss from cloudfront
+via: 1.1 c826032beb60081d460e792c7876aa22.cloudfront.net (CloudFront)
+x-amz-cf-pop: DFW55-C3
+x-amz-cf-id: gfBy2PHXGdFUAktfwFdTKqarZOz67h5XnANlhQVM-rWgkzV-_vS2TQ==
+X-Firefox-Spdy: h2
+ original-response-headers content-type: text/css
+content-length: 18781
+date: Mon, 10 Apr 2023 11:02:51 GMT
+vary: Origin,Access-Control-Request-Method,Access-Control-Request-Headers
+last-modified: Thu, 09 Mar 2023 20:44:21 GMT
+accept-ranges: bytes
+x-envoy-upstream-service-time: 4
+server: istio-envoy
+x-auth-envoy-filter-passthrough: yes
+x-cache: Miss from cloudfront
+via: 1.1 c826032beb60081d460e792c7876aa22.cloudfront.net (CloudFront)
+x-amz-cf-pop: DFW55-C3
+x-amz-cf-id: gfBy2PHXGdFUAktfwFdTKqarZOz67h5XnANlhQVM-rWgkzV-_vS2TQ==
+X-Firefox-Spdy: h2
+ ctid 5 uncompressed-len 0 net-response-time-onstart 647 net-response-time-onstop 648   I]

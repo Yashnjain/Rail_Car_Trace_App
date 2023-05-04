@@ -1,0 +1,394 @@
+<html>
+<head>
+<title>Steelroads - Track and Trace</title>
+<link rel="STYLESHEET" type="text/css" href="/branding/steelroads/master.css" />
+<script language="javascript">
+function validateForm() {
+	var msg = "";
+	for (i=0; i<document.frm.elements.length; i++) {
+		// Test for nulls, empty fields
+		if (document.frm.elements[i].value == "" ||
+			document.frm.elements[i].value == null ||
+			document.frm.elements[i].value.length < 1) {
+
+			// Check trace name
+			if (document.frm.elements[i].name == "tracename") {
+				msg = "Please fill in a Trace Name";
+			}
+
+			// Check trace description
+			if (document.frm.elements[i].name == "tracedescription") {
+				msg += "\nPlease fill in a Trace Description";
+			}
+
+		} else if ( document.frm.elements[i].value.replace(" ","").toLowerCase() == "unknown")	{
+			msg="Avoid using Trace Name as "+document.frm.elements[i].value;
+		}
+		 
+	} // end loop
+
+	// Alert the user
+	if (msg !=null && msg !="") {
+		alert(msg);
+		return false;
+	}
+	//Heat ticket rolled back per BSD request by Seetharaman on 30-Nov-2004
+	/*
+	else {
+	    //Start code change for HT28480 by Divya Abraham on Nov-05-2004
+
+		return validateTraceName();
+		//End code change for HT28480 by Divya Abraham on Nov-05-2004
+	}*/
+ }
+ //Start code change for HT28480 by Divya Abraham on Nov-05-2004
+ function validateTraceName() {
+     var name=document.frm.tracename.value;
+     var validChar = /^[a-zA-Z0-9_]*$/;
+     var msg="";
+	 if(validChar.test(name) == false){
+		msg="Only alpha, numeric, and underscore characters are allowed in trace names.";
+	 } else if (name.indexOf('__')>=0) {
+	    msg="Consecutive underscores are not allowed in a trace name";
+	 }
+     if (msg !=null && msg !="") {
+		alert(msg);
+		document.frm.tracename.focus();
+		return false;
+	 }
+	 else
+		return true;
+ }
+//End code change for HT28480 by Divya Abraham on Nov-05-2004
+function getController(submitValue) {
+	document.frm.target="_self";
+	if (submitValue == "SAVE_AND_TRACE") {
+		var winName = "traceWindow";
+		var winSpecs = 'height=590,width=790,scrollbars=yes,menubar=yes,resizable=yes,left=0,top=0';
+		win1 = window.open('',winName,winSpecs);
+		document.frm.target=winName;
+		document.frm.CONTROLLER.value = "ETSaveRunCtlr";
+		win1.focus();
+	}
+	else if (submitValue == "OK") {
+		document.frm.CONTROLLER.value = "ETSaveCtlr";
+	}
+}
+
+</script>
+</head>
+
+<body onload="document.frm.tracename.focus();">
+<script language="javascript">
+    var si;
+    function samePage() {
+        return document.applications.newLocation.selectedIndex != 0;
+    }
+
+    function jumpPage(newLoc) {
+        newPage = newLoc.options[newLoc.selectedIndex].value;
+
+        if (newPage != "") {
+            window.location.href = newPage
+        }
+
+    }
+
+    function newWindow(fileName) {
+        window.open(fileName, "win", "width=400,height=600,scrollbars=yes");
+    }
+</script>
+<form name="applications">
+<!-- Created a MAP provision for the banner image that can be used in road specific branding file
+	 to activate links on the banner image -->
+	<div id="banner" class="bannerLook"><img id="logo" src="/branding/steelroads/topBanner.gif" alt="logo" USEMAP="#mapTopBanner" border="0"/></div>
+	<div id="genericNav"><a class="gnav" href="/index.jsp">Home</a>
+	     <a class="gnav" href="/launchpad">Launch Pad</a>
+		 <a class="gnav" href="/contact_us.jsp">Contact Us</a>
+		 <a class="gnav" href="/FAQ.jsp?LANGUAGE=en">FAQ</a>
+		 <a class="gnav" href="/sitemap.jsp">Sitemap</a>
+		 <a class="gnav" href="/railroadlinks.jsp">Railroad links</a>
+<!--	 <a class="gnav" href="/servlet/VNS?CONTROLLER=SiteEntranceController&ACTION=setLanguage&LANGUAGE=es">Espanol</a>
+		 <a class="gnav" href="/servlet/VNS?CONTROLLER=SiteEntranceController&ACTION=setLanguage&LANGUAGE=fr">Francais</a> -->
+		 </div>
+
+	<div class="menubar">
+            <select class="input_text" name="newLocation" onchange="jumpPage(this.form.newLocation)">
+                <option selected>Select an application from the List</option>
+                <OPTION value="/servlet/GenericServlet?CONTROLLER=IrfMenuController&ACTION=MENU_INITIALIZE&LANGUAGE=en">Reference</OPTION>
+<OPTION value="/servlet/FrontServlet?CONTROLLER=ETCreateCtlr&ACTION=EXECUTE&LANGUAGE=en">Track and Trace</OPTION>
+<OPTION value="/servlet/VNS?CONTROLLER=SLERPController&ACTION=showSLERP">Shortline Event Reporting</OPTION>
+
+            </select>
+
+                        
+
+                        <a class="button"  href="/servlet/login" onclick="return false;">
+                            Welcome  Geoff Utecht
+                        </a>
+
+                        
+                        
+
+                        <a class="button"  href="/servlet/logout">
+                            Log Out
+                            <!-- This -->
+                        </a>
+                        
+
+                        
+
+                        <a class="button" href="/servlet/VNS?CONTROLLER=ServicesController&ACTION=showServices">
+                            User Services
+                        </a>
+
+                        
+    </div>
+</form>
+
+<div id="wrapper">
+<div id="leftNavLook">
+<script language="JavaScript"> 
+			<!--hide 
+			
+			function newPopupWindow(url)
+			{
+                if (location.protocol != 'https:') {
+                    window.open("http://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+                } else {
+                    window.open("https://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+                }
+			} 
+					
+			function popupFTPConfig()
+			{
+				window.open("/servlet/FrontServlet?CONTROLLER=STFTPController", "extWinFTPConfig", "resizable=1,toolbar=0,menubar=0,location=0,scrollbars=1,width=430,height=600" );
+			}
+					
+			//--> 
+</script>
+
+<h4>Options</h4>
+<a href="#" onclick="newPopupWindow('/attrusage.jsp'); return false;">Terms Of Use</a>
+
+     <h4>Equipment Tracking</h4>
+    <a href="/servlet/FrontServlet?CONTROLLER=ETCreateCtlr&ACTION=&LANGUAGE=en">Create Equipment Trace</a>
+     <a href="/servlet/FrontServlet?CONTROLLER=ETDisplayListCtlr&ACTION=&LANGUAGE=en&listType=pages">Trace List (Paged)</a>
+     <a href="/servlet/FrontServlet?CONTROLLER=ETDisplayListCtlr&ACTION=&LANGUAGE=en&listType=all">     Trace List (All)</a>
+     <a href="/AttrEquipmentTraceDemo-en.html">Equipment Trace Demo</a>
+
+</div>
+
+
+
+<div id="appArea" class="appAreaLook">
+<h1>Track and Trace -  Equipment Tracking - Saved Trace</h1>
+
+
+<form name="frm" action="/servlet/FrontServlet" onsubmit="return validateForm();" method="POST">
+<input type="HIDDEN" name="CONTROLLER" value="ETSaveCtlr">
+<input type="HIDDEN" name="ACTION" value="">
+<input type="HIDDEN" name="LANGUAGE" value="en">
+<p>Enter a name and description to finish saving your Equipment Trace.</p>
+
+			<table cellpadding="2" cellspacing="2">
+				<tr><td colspan="4"><div class="helpBut">[<a href="javascript:newWindow('/Attrhelp.html')">Help</a>]</div></td></tr>
+
+				<tr><td colspan="4"  class="steps">7 - Enter a trace name (mandatory, 25 characters max.).</td></tr>
+				<tr><td valign="top" align="right">Trace Name</td>
+					<td valign="top" colspan="3"><input type="text" class="input_text" name="tracename" value="" size="25" maxlength="64" /></td></tr>
+				<tr><td colspan="4"  class="steps">8 - Enter a trace description (mandatory, 25 characters max.).</td></tr>
+				<tr><td valign="top" align="right">Trace Description</td>
+				<td valign="top" colspan="3"><input type="text" class="input_text" name="tracedescription" value="" size="25" maxlength="64" /></td></tr>
+
+				<tr><td colspan="4" class="steps">9 - Select either 'Share Trace' or 'Private Trace' ('Private Trace' is the default):</td></tr>
+
+				<tr>
+				<td valign="top" align="center" colspan="4">
+
+				<input type="radio" name="tracevisibility" value="0"  />Share Trace
+
+				&nbsp;&nbsp;
+
+				<input type="radio" name="tracevisibility" value="1" CHECKED />Private Trace
+
+				</td>
+				</tr>
+<tr><td colspan="4">
+
+		<div align="center">
+
+<input type="submit" class="input_button" value="OK">&nbsp;&nbsp;&nbsp;&nbsp;<input type="Reset" class="input_button" value="Reset"></div>
+</td></tr>
+<tr><td colspan="4">
+<div class="backBut">[<a href="#" onclick="window.history.go(-1)">Back</a>]</div>
+</td></tr>
+</table></form>
+
+	</div>
+</div>
+
+<div id="footer" class="footerLook">
+<div id="footerContent">
+<div class="roadLogos">
+	<table><tr>
+		<!--  Start code change for HT54299 by Seetharaman on 29 Jun 2005 -->
+		<td><div class="logoContainer"><a href="http://www.bnsf.com/" target="_blank"><img src="/images/bnsfLogo.gif" border="0"></a></div></td>
+		<!--  End code change for HT54299 by Seetharaman on 29 Jun 2005 -->
+		<td><div class="logoContainer"><a href="http://www.cn.ca/" target="_blank"><img src="/images/cnLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.cpr.ca/" target="_blank"><img src="/images/CP_Logo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.csx.com/" target="_blank"><img src="/images/csxtLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.kcsouthern.com/en-us/" target="_blank"><img src="/images/kcsLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.nscorp.com/" target="_blank"><img src="/images/nsLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.uprr.com/" target="_blank"><img src="/images/upLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.aslrra.org/" target="_blank"><img src="/images/aslrraLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.aar.org/" target="_blank"><img src="/images/aarLogo.gif" border="0"></a></div></td>
+	</tr>
+<!-- Start Code Change by Renga for GNATS 13814 on 02-Feb-2005-->
+		<TR>
+		  <TD colspan="9"><hr></TD>
+		</TR>
+        <TR>
+          <TD colspan="9" align="center">
+            <!-- Start Code Change by Harikrishnan for HT 42186 on 03-June-2005--> 
+            <A href="#" onclick="newPopupWindow('/legal','Copyright');" >Legal Notices</A> &nbsp;|&nbsp;
+            <A href="#" onclick="newPopupWindow('/terms');" >Terms of Service</A> &nbsp;|&nbsp;
+            <A href="#" onclick="newPopupWindow('/privacy');" >Privacy</A>
+<!-- End Code Change by Harikrishnan for HT 42186 on 03-June-2005--> 
+          </TD>
+        </TR>
+		<TR>
+          <TD colspan="9" align="center">
+          <!--Start Code Changes by Renga for HT40959 on 15-Feb-2005-->
+            	Copyright&nbsp;&copy;&nbsp;2002-<script>document.write( new Date().getFullYear() );</script>. <a href = "http://www.railinc.com">Railinc</a>. All rights reserved.
+          <!--End Code Changes by Renga for HT40959 on 15-Feb-2005-->
+          </TD>
+        </TR>
+<!--End Code Changes by Renga for GNATS 13814 on 02-Feb-2005-->	
+</table>
+</div></div>
+
+<script language="JavaScript" type="text/javascript">
+
+  function setItUp(){
+        if (! (typeof(NOMARGIN) == "undefined")) {
+		document.getElementById('appArea').style.marginLeft = "0px";
+		document.getElementById('footerContent').style.marginLeft = "100px";
+		return;
+	}
+
+     if ( document.getElementById( 'stLeftNavLook' ) ){
+			document.getElementById( 'leftNavLook' ).style.marginRight = "20px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     } else if(document.getElementById('leftNavLook') || document.getElementById('siNavLook')){
+			document.getElementById('appArea').style.marginLeft = "100px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+	 } else if(document.getElementById('siPatternNavLook')){
+			document.getElementById('appArea').style.marginLeft  = "190px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     } else if(document.getElementById('login')){
+			document.getElementById('appArea').style.marginLeft  = "150px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     } 
+     //start code change for HT54219 by vasu on 18-Oct-05
+     else if(document.getElementById('confirmDelete')){
+     		document.getElementById('footerContent').style.marginLeft = "0px";
+     }
+     //end code change for HT54219 by vasu on 18-Oct-05
+     
+     else{
+			document.getElementById('appArea').style.marginLeft  = "100px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     }
+  }
+
+// Start Code Change by Renga for GNATS 13814 on 24-Sep-2004
+// newWindow function opens window with required info.
+  function newPopupWindow(url, anotherWin) {
+      if (location.protocol != 'https:') {
+          window.open("http://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+      } else {
+          window.open("https://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+      }
+	  anotherWindow.focus()
+  }
+// End Code Change by Renga for GNATS 13814 on 24-Sep-2004
+
+// Start code added for GNATS 4800 by Pradeepa on 17-May-2004
+ function setItUpNetscape(){
+		if (! (typeof(NOMARGIN) == "undefined")) {
+		document.getElementById('appArea').style.marginLeft = "0px";
+		document.getElementById('footerContent').style.marginLeft = "100px";
+		return;
+		}
+
+		if(document.getElementById('leftNavLook') ){
+				document.getElementById('appArea').style.marginLeft = "100px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+		else if( document.getElementById('siNavLook')){
+
+					document.getElementById('appArea').style.marginLeft = "150px";
+					document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+		else if(document.getElementById('siPatternNavLook')){
+				document.getElementById('appArea').style.marginLeft  = "195px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		} else if(document.getElementById('login')){
+				document.getElementById('appArea').style.marginLeft  = "150px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+     //start code change for HT54219 by vasu on 18-Oct-05
+     else if(document.getElementById('confirmDelete')){
+     		document.getElementById('footerContent').style.marginLeft = "0px";
+     }
+     //end code change for HT54219 by vasu on 18-Oct-05
+		else{
+				document.getElementById('appArea').style.marginLeft  = "100px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+}
+
+// End code added for GNATS 4800 by Pradeepa on 17-May-2004
+
+</script>
+
+<script language="JavaScript" type="text/javascript">
+//Start code changed for GNATS 4800 by Pradeepa on 17-May-2004
+
+if(navigator.appName == "Netscape"){
+	setItUpNetscape();
+}
+else{
+	setItUp();
+}
+// End code changed for GNATS 4800 by Pradeepa on 17-May-2004
+</script>
+
+
+</div>
+
+</body>
+</html>
+'l‘s      d6n»d6n¼EvL/d6n¼   i    O^partitionKey=%28https%2Crailinc.com%29,~1681288641,:https://steelroads.railinc.com/servlet/FrontServlet strongly-framed 1 security-info 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 request-method POST response-head HTTP/2 200 OK
+content-type: text/html
+date: Wed, 12 Apr 2023 08:41:32 GMT
+x-envoy-upstream-service-time: 10
+server: istio-envoy
+x-auth-envoy-filter-passthrough: yes
+x-cache: Miss from cloudfront
+via: 1.1 ad8162f27e48982c5acbcf012b7cab66.cloudfront.net (CloudFront)
+x-amz-cf-pop: DFW55-C3
+x-amz-cf-id: DuGX51bByleXeta1B8Tr-p4CIR5FjYDEGBJaE_VLTVDnX_Zf3z3j3Q==
+X-Firefox-Spdy: h2
+ original-response-headers content-type: text/html
+date: Wed, 12 Apr 2023 08:41:32 GMT
+x-envoy-upstream-service-time: 10
+server: istio-envoy
+x-auth-envoy-filter-passthrough: yes
+x-cache: Miss from cloudfront
+via: 1.1 ad8162f27e48982c5acbcf012b7cab66.cloudfront.net (CloudFront)
+x-amz-cf-pop: DFW55-C3
+x-amz-cf-id: DuGX51bByleXeta1B8Tr-p4CIR5FjYDEGBJaE_VLTVDnX_Zf3z3j3Q==
+X-Firefox-Spdy: h2
+ ctid 1 uncompressed-len 0 net-response-time-onstart 684 net-response-time-onstop 689   ;$
