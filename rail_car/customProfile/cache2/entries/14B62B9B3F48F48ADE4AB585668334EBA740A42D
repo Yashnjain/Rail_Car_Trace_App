@@ -1,0 +1,698 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD html 3.2 Final//EN">
+
+<html>
+<head>
+    <STYLE type="text/css">
+        td.justifyalign { text-align: justify }
+    </STYLE>
+    <title>Steelroads - Track and Trace</title>
+    <link rel="STYLESHEET" type="text/css" href="/branding/steelroads/master.css"/>
+    <script language="javascript">
+        function hasPermission() {
+            if (document.frm.PERMISSION != null && (document.frm.PERMISSION.value == "false")) {
+
+                document.frm.responseoption[0].checked = true;
+                alert("You are not authorized for the Historical Tracing and your response option is being changed to Last Event.");
+                document.frm.PERMISSION.value = "true";
+            }
+        }
+
+        function enableHistoryDateRange() {
+            hasPermission();
+            if (document.frm.responseoption != null) {
+                if (document.frm.responseoption[2] != null && document.frm.responseoption[2].checked) {
+                    setDisableHistoryDateRange(false);
+                }
+            }
+        }
+        function setDisableHistoryDateRange(bool) {
+            if (document.frm.historicalDateRange != null)
+                document.frm.historicalDateRange.disabled = bool;
+        }
+
+        function showtip(current, e, text) {
+
+            if (document.all) {
+                thetitle = text.split('<br />');
+                if (thetitle.length > 1) {
+                    thetitles = "";
+                    for (i = 0; i < thetitle.length; i++)
+                        thetitles += thetitle[i] + "\r\n"
+                    current.title = thetitles
+                }
+                else current.title = text
+            }
+
+            else if (document.layers) {
+                document.tooltip.document.write(
+                    '<layer bgColor="#FFFFE7" style="border:1px ' +
+                    'solid black; font-size:12px;color:#000000;">' + text + '</layer>');
+                document.tooltip.document.close();
+                document.tooltip.left = e.pageX + 5;
+                document.tooltip.top = e.pageY - 75;
+                document.tooltip.visibility = "show"
+            }
+        }
+
+        function hidetip() {
+
+            if (document.layers)
+                document.tooltip.visibility = "hidden"
+        }
+
+
+        <!-- Written by Ujjal Borua for Gnats #1387 0n 13-05-2002 -->
+
+        var splitIndex = 0;
+        var splitArray = [];
+
+        function splits(string, text) {
+            var strLength = string.length, txtLength = text.length;
+            if ((strLength == 0) || (txtLength == 0)) return;
+
+            var i = string.indexOf(text);
+            if ((!i) && (text != string.substring(0, txtLength))) return;
+            if (i == -1) {
+                splitArray[splitIndex++] = string;
+                return;
+            }
+
+            splitArray[splitIndex++] = string.substring(0, i);
+
+            if (i + txtLength < strLength)
+                splits(string.substring(i + txtLength, strLength), text);
+
+
+        }
+
+        function split(string, text) {
+            splitIndex = 0;
+            splits(string, text);
+        }
+
+        function join(arrayName) {
+            var temp = '';
+            for (var i = 0; i < splitIndex; i++)
+                temp += arrayName[i] + '\n';
+            if (escape(temp.substring(0, 1)) == '%0A')
+                return temp.substring(1, temp.length);
+            else
+                return temp;
+        }
+
+        function sort(arrayName) {
+            for (var i = 0; i < (splitIndex - 1); i++)
+                for (var j = i + 1; j < splitIndex; j++)
+                    if (arrayName[j].toLowerCase() < arrayName[i].toLowerCase()) {
+                        var dummy = arrayName[i];
+                        arrayName[i] = arrayName[j];
+                        arrayName[j] = dummy;
+                    }
+        }
+
+        function ltrim(s) {
+            return s.replace(/^\s*/, "")
+        }
+
+        function rtrim(s) {
+            return s.replace(/\s*$/, "");
+        }
+
+        function split(string, text) {
+            splitArray = string.split(text);
+            splitIndex = splitArray.length;
+        }
+
+        function replace(string, text, by) {
+            // Replaces text with by in string
+            var strLength = string.length, txtLength = text.length;
+            if ((strLength == 0) || (txtLength == 0)) return string;
+
+            var i = string.indexOf(text);
+            if ((!i) && (text != string.substring(0, txtLength))) return string;
+            if (i == -1) return string;
+
+            var newstr = string.substring(0, i) + by;
+
+            if (i + txtLength < strLength)
+                newstr += replace(string.substring(i + txtLength, strLength), text, by);
+
+
+            return newstr;
+
+        }
+
+        function sorttext() {
+            document.frm.carlist.value = replace(document.frm.carlist.value, ',', '\n');
+            document.frm.carlist.value = replace(document.frm.carlist.value, ' ', '');
+            split(document.frm.carlist.value, '\n');
+            sort(splitArray);
+            document.frm.carlist.value = rtrim(ltrim(join(splitArray)));
+        }
+
+        function checkForSortOrderDups() {
+            // Note: We may want a script in the future that eliminates choices that are in the lists once the first choice
+            // is made - This would avoid having to alert the user. We just wouldn't give them the option of selecting dups
+
+            // 1st check - If 'NONE' is selected for 2nd and 3rd we move on - this dup is allowed
+            if (document.frm.sort_order_2.options[document.frm.sort_order_2.selectedIndex].text == "None") {
+                if (document.frm.sort_order_3.options[document.frm.sort_order_3.selectedIndex].text == "None") {
+                    return true;
+                }
+                else {
+                    // If 'NONE' is the 2nd option and a 3rd is not chosen, return false;
+                    return false;
+                }
+            }
+
+            // Get the selected sort orders (For some reason I can't substitute these vars for the above if clause - doesn't work in Netscape 4.5...
+            var sortOrder1 = document.frm.sort_order_1.options[document.frm.sort_order_1.selectedIndex].text;
+            var sortOrder2 = document.frm.sort_order_2.options[document.frm.sort_order_2.selectedIndex].text;
+            var sortOrder3 = document.frm.sort_order_3.options[document.frm.sort_order_3.selectedIndex].text;
+
+            // 2nd check -  Now check for other dups
+            if (sortOrder1 == sortOrder2 || sortOrder2 == sortOrder3 || sortOrder1 == sortOrder3) {
+                return false;
+            }
+
+            return true;
+        }
+
+        <!--SET 072601 - Added check for sort order as well as sort order function above; Added translation tag for Vin alert-->
+        function validateForm() {
+            for (i = 0; i < document.frm.elements.length; i++) {
+                // Test for nulls, empty fields
+                if (document.frm.elements[i].value == "" || document.frm.elements[i].value == null || document.frm.elements[i].value.length < 1) {
+                    // Check cars
+                    if (document.frm.elements[i].name == "carlist") {
+                        alert("Please enter Car numbers before searching.");
+                        document.frm.elements[i].focus();
+                        return false;
+                    }
+                }
+
+                // Check specific sort orders - can't have duplicates here
+                if (document.frm.elements[i].name == "sort_order_1") {
+                    if (!checkForSortOrderDups()) {
+                        alert("Sort Order selections are not valid. Please go back and select distinct sorting criteria. Note that 2nd sort criteria cannot be set to NONE if 3rd sort criteria is selected.");
+                        document.frm.elements[i].focus();
+                        return false;
+                    }
+
+                }
+            }
+            if (document.frm.responseoption[2] != null) {
+                if (document.frm.responseoption[2].checked) {
+                    if (document.frm.historicalDateRange.options[document.frm.historicalDateRange.selectedIndex].text == "Select Historical Days") {
+                        alert("Please select the number of days for tracing events historically.");
+                        document.frm.historicalDateRange.focus();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+
+        function getController(submitValue) {
+            document.frm.target = "_self";
+            //suppress display of pop up window if validation fails
+            if (validateForm()) {
+                if (submitValue == "RUNTRACE") {
+                    document.frm.CONTROLLER.value = "ETPrepareTraceToRunCtlr";
+                    var winURL="/AttrTraceReportProcessingTemplate.jsp";
+                    var winName = "traceWindow";
+                    var winSpecs = 'height=590,width=790,scrollbars=yes,menubar=yes,resizable=yes,left=0,top=0';
+                    win1 = window.open(winURL, winName, winSpecs);
+                }
+                else if (submitValue == "SAVETRACE") {
+                    document.frm.CONTROLLER.value = "ETPrepareTraceForSaveCtlr";
+                }
+                else if (submitValue == "SAVETRACEAS") {
+                    document.frm.CONTROLLER.value = "ETPrepareTraceForSaveAsCtlr";
+                }
+            } else {
+                return false;
+            }
+        }
+
+    </script>
+
+</head>
+
+<body onLoad="enableHistoryDateRange()" >
+<div id=tooltip style="position:absolute;visibility:hidden"></div>
+<script language="javascript">
+    var si;
+    function samePage() {
+        return document.applications.newLocation.selectedIndex != 0;
+    }
+
+    function jumpPage(newLoc) {
+        newPage = newLoc.options[newLoc.selectedIndex].value;
+
+        if (newPage != "") {
+            window.location.href = newPage
+        }
+
+    }
+
+    function newWindow(fileName) {
+        window.open(fileName, "win", "width=400,height=600,scrollbars=yes");
+    }
+</script>
+<form name="applications">
+<!-- Created a MAP provision for the banner image that can be used in road specific branding file
+	 to activate links on the banner image -->
+	<div id="banner" class="bannerLook"><img id="logo" src="/branding/steelroads/topBanner.gif" alt="logo" USEMAP="#mapTopBanner" border="0"/></div>
+	<div id="genericNav"><a class="gnav" href="/index.jsp">Home</a>
+	     <a class="gnav" href="/launchpad">Launch Pad</a>
+		 <a class="gnav" href="/contact_us.jsp">Contact Us</a>
+		 <a class="gnav" href="/FAQ.jsp?LANGUAGE=en">FAQ</a>
+		 <a class="gnav" href="/sitemap.jsp">Sitemap</a>
+		 <a class="gnav" href="/railroadlinks.jsp">Railroad links</a>
+<!--	 <a class="gnav" href="/servlet/VNS?CONTROLLER=SiteEntranceController&ACTION=setLanguage&LANGUAGE=es">Espanol</a>
+		 <a class="gnav" href="/servlet/VNS?CONTROLLER=SiteEntranceController&ACTION=setLanguage&LANGUAGE=fr">Francais</a> -->
+		 </div>
+
+	<div class="menubar">
+            <select class="input_text" name="newLocation" onchange="jumpPage(this.form.newLocation)">
+                <option selected>Select an application from the List</option>
+                <OPTION value="/servlet/GenericServlet?CONTROLLER=IrfMenuController&ACTION=MENU_INITIALIZE&LANGUAGE=en">Reference</OPTION>
+<OPTION value="/servlet/FrontServlet?CONTROLLER=ETCreateCtlr&ACTION=EXECUTE&LANGUAGE=en">Track and Trace</OPTION>
+<OPTION value="/servlet/VNS?CONTROLLER=SLERPController&ACTION=showSLERP">Shortline Event Reporting</OPTION>
+
+            </select>
+
+                        
+
+                        <a class="button"  href="/servlet/login" onclick="return false;">
+                            Welcome  Geoff Utecht
+                        </a>
+
+                        
+                        
+
+                        <a class="button"  href="/servlet/logout">
+                            Log Out
+                            <!-- This -->
+                        </a>
+                        
+
+                        
+
+                        <a class="button" href="/servlet/VNS?CONTROLLER=ServicesController&ACTION=showServices">
+                            User Services
+                        </a>
+
+                        
+    </div>
+</form>
+
+<div id="wrapper">
+    <div id="leftNavLook">
+<script language="JavaScript"> 
+			<!--hide 
+			
+			function newPopupWindow(url)
+			{
+                if (location.protocol != 'https:') {
+                    window.open("http://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+                } else {
+                    window.open("https://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+                }
+			} 
+					
+			function popupFTPConfig()
+			{
+				window.open("/servlet/FrontServlet?CONTROLLER=STFTPController", "extWinFTPConfig", "resizable=1,toolbar=0,menubar=0,location=0,scrollbars=1,width=430,height=600" );
+			}
+					
+			//--> 
+</script>
+
+<h4>Options</h4>
+<a href="#" onclick="newPopupWindow('/attrusage.jsp'); return false;">Terms Of Use</a>
+
+     <h4>Equipment Tracking</h4>
+    <a href="/servlet/FrontServlet?CONTROLLER=ETCreateCtlr&ACTION=&LANGUAGE=en">Create Equipment Trace</a>
+     <a href="/servlet/FrontServlet?CONTROLLER=ETDisplayListCtlr&ACTION=&LANGUAGE=en&listType=pages">Trace List (Paged)</a>
+     <a href="/servlet/FrontServlet?CONTROLLER=ETDisplayListCtlr&ACTION=&LANGUAGE=en&listType=all">     Trace List (All)</a>
+     <a href="/AttrEquipmentTraceDemo-en.html">Equipment Trace Demo</a>
+
+</div>
+
+
+
+    <div id="appArea" class="appAreaLook">
+        <h1>Track and Trace - Equipment Tracking</h1>
+
+        
+
+
+        <form name="frm" action="/servlet/FrontServlet" method="POST">
+            <input type="HIDDEN" name="CONTROLLER" value="">
+            <input type="HIDDEN" name="ACTION" value="">
+            <input type="HIDDEN" name="LANGUAGE" value="en">
+            <input type="HIDDEN" name="PERMISSION" value="">
+            <table cellpadding="0" cellspacing="0" width="550">
+                <tr>
+                    <td colspan="3">
+                        <div class="helpBut">[<a href="javascript:newWindow('/Attrhelp.html')">Help</a>]</div>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3" class="steps" height="16"><a href="#" style="text-decoration:none;color:#333364"
+                                                                 onmouseover="showtip(this,event,'Valid formats are equipment initial and number, equipment number range, or wildcard usage.<br />Examples: ABCD1000, ABCD1000-1005, ABCD123*<br />The wildcard must be in position 4, 5, or 6 of the equipment number.<br />Use commas, or a new line to separate multiple entries.<br />A maximum of 1000 equipment can be used for tracing.')"
+                                                                 onmouseout="hidetip()">1 - Enter car numbers:(Point here for car format help)</a></td>
+                </tr>
+                <tr>
+                    <td colspan="3" align="left">
+                        <table width="98%" border="0">
+                            <tr>
+                                <td>
+                                    <textarea cols="100" class="input_text" rows="10" name="carlist" class="attr_txtarea"></textarea>
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3" class="steps">2 - Select a CLM format for your trace ('Text Format - Event Translation' is the default):</td>
+                </tr>
+                <tr>
+                    <td colspan="3"><select name="reportformat" class="input_text"><OPTION VALUE=T SELECTED> Text Format - Event Translation<OPTION VALUE=A > A format - Location with SPLC<OPTION VALUE=B> B format - Train<OPTION VALUE=" "> blank Format - Location<OPTION VALUE=C> C format - Train with SPLC<OPTION VALUE=D> D format - Destination<OPTION VALUE=E> E format - Destination with SPLC<OPTION VALUE=F> F format - Flatcar<OPTION VALUE=G> G format - Flatcar with SPLC<OPTION VALUE=H> H format - ETA<OPTION VALUE=I> I format - ETA with SPLC<OPTION VALUE=W> W format - Scale Weight</select></td>
+                </tr>
+
+                <tr>
+                    <td class="steps">
+                        3 - Load/Empty:
+                    </td>
+                    <td class="steps">
+                        <input type="radio" name="loadstatus" value="L" >Loaded
+                        <input type="radio" name="loadstatus" value="E" >Empty
+                        <input type="radio" name="loadstatus" value="B" CHECKED>Both
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="steps">4 - Show only the selected events:</td>
+                    <td class="steps"><select name="clmCode" class="input_text"><OPTION VALUE=" " SELECTED> All Events<OPTION VALUE=Z> Actual Placement<OPTION VALUE=B> Bad Order<OPTION VALUE=G> Bad Order Release<OPTION VALUE=Y> Constructive Placement/Notify<OPTION VALUE=H> Delayed Or Held<OPTION VALUE=P> Departure<OPTION VALUE=V> Deramped<OPTION VALUE=D> Destination Arrival<OPTION VALUE=K> Intermodal Interchange<OPTION VALUE=A> Intransit Arrival<OPTION VALUE=J> Junction Delivery<OPTION VALUE=R> Junction Received<OPTION VALUE=C> Motor Carrier Arrival at Railroad Facility<OPTION VALUE=L> Railroad Controlled Motor Carrier Arrival<OPTION VALUE=E> Motor Carrier Departure<OPTION VALUE=M> Motor Carrier Move<OPTION VALUE=N> No Bill<OPTION VALUE=I> Offered In Interchange<OPTION VALUE=X> Pull from Patron<OPTION VALUE=U> Ramped<OPTION VALUE=W> Released<OPTION VALUE=9> Release From Hold Or Misc<OPTION VALUE=S> To Storage</select></td>
+                </tr>
+                <tr>
+                    <td class="steps" colspan="2">
+                        5 - Response Option:
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table width=100% border="0" cellpadding="4">
+                            <tr>
+                                <td width="10%" align="right" valign="top">
+                                    <input type="radio" name="responseoption" onClick=setDisableHistoryDateRange(true); value="L"
+                                    CHECKED>
+                                </td>
+                                <td class="justifyalign"> Last Event - Receive the one most recent event per railcar/container. </td>
+                            </tr>
+                            <tr>
+                                <td width="10%" align="right" valign="top">
+                                    <input type="radio" name="responseoption" onClick=setDisableHistoryDateRange(true); value="N"
+                                    >
+                                </td>
+                                <td class="justifyalign">
+                                    New Event  - Receive all events that have been reported since the last time you traced the railcar/container in a saved trace list OR up to the past 4 days of reported events for on demand and first time tracing.
+                                </td>
+                            </tr>
+                            <!--
+                            <tr>
+                                <td width="10%" align="right" valign="top">
+                                    <input type="radio" name="responseoption" onClick=setDisableHistoryDateRange(false); value="H"
+                                    >
+                                </td>
+                                <td class="justifyalign">
+                                    Historical Events 
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <SELECT CLASS="input_text" NAME="historicalDateRange" DISABLED><OPTION  VALUE='0' SELECTED>Select Historical Days</OPTION><OPTION  VALUE='1'>Past 1 Day</OPTION><OPTION  VALUE='2'>Past 2 Days</OPTION><OPTION  VALUE='3'>Past 3 Days</OPTION><OPTION  VALUE='4'>Past 4 Days</OPTION><OPTION  VALUE='5'>Past 5 Days</OPTION><OPTION  VALUE='6'>Past 6 Days</OPTION><OPTION  VALUE='7'>Past 7 Days, 1 Week</OPTION><OPTION  VALUE='8'>Past 8 Days</OPTION><OPTION  VALUE='9'>Past 9 Days</OPTION><OPTION  VALUE='10'>Past 10 Days</OPTION><OPTION  VALUE='11'>Past 11 Days</OPTION><OPTION  VALUE='12'>Past 12 Days</OPTION><OPTION  VALUE='13'>Past 13 Days</OPTION><OPTION  VALUE='14'>Past 14 Days, 2 Weeks</OPTION><OPTION  VALUE='15'>Past 15 Days</OPTION><OPTION  VALUE='16'>Past 16 Days</OPTION><OPTION  VALUE='17'>Past 17 Days</OPTION><OPTION  VALUE='18'>Past 18 Days</OPTION><OPTION  VALUE='19'>Past 19 Days</OPTION><OPTION  VALUE='20'>Past 20 Days</OPTION><OPTION  VALUE='21'>Past 21 Days, 3 Weeks</OPTION><OPTION  VALUE='22'>Past 22 Days</OPTION><OPTION  VALUE='23'>Past 23 Days</OPTION><OPTION  VALUE='24'>Past 24 Days</OPTION><OPTION  VALUE='25'>Past 25 Days</OPTION><OPTION  VALUE='26'>Past 26 Days</OPTION><OPTION  VALUE='27'>Past 27 Days</OPTION><OPTION  VALUE='28'>Past 28 Days, 4 Weeks</OPTION><OPTION  VALUE='29'>Past 29 Days</OPTION><OPTION  VALUE='30'>Past 30 Days</OPTION><OPTION  VALUE='31'>Past 31 Days</OPTION><OPTION  VALUE='32'>Past 32 Days</OPTION><OPTION  VALUE='33'>Past 33 Days</OPTION><OPTION  VALUE='34'>Past 34 Days</OPTION><OPTION  VALUE='35'>Past 35 Days, 5 Weeks</OPTION><OPTION  VALUE='36'>Past 36 Days</OPTION><OPTION  VALUE='37'>Past 37 Days</OPTION><OPTION  VALUE='38'>Past 38 Days</OPTION><OPTION  VALUE='39'>Past 39 Days</OPTION><OPTION  VALUE='40'>Past 40 Days</OPTION><OPTION  VALUE='41'>Past 41 Days</OPTION><OPTION  VALUE='42'>Past 42 Days, 6 Weeks</OPTION><OPTION  VALUE='43'>Past 43 Days</OPTION><OPTION  VALUE='44'>Past 44 Days</OPTION><OPTION  VALUE='45'>Past 45 Days</OPTION><OPTION  VALUE='46'>Past 46 Days</OPTION><OPTION  VALUE='47'>Past 47 Days</OPTION><OPTION  VALUE='48'>Past 48 Days</OPTION><OPTION  VALUE='49'>Past 49 Days, 7 Weeks</OPTION><OPTION  VALUE='50'>Past 50 Days</OPTION><OPTION  VALUE='51'>Past 51 Days</OPTION><OPTION  VALUE='52'>Past 52 Days</OPTION><OPTION  VALUE='53'>Past 53 Days</OPTION><OPTION  VALUE='54'>Past 54 Days</OPTION><OPTION  VALUE='55'>Past 55 Days</OPTION><OPTION  VALUE='56'>Past 56 Days, 8 Weeks</OPTION><OPTION  VALUE='57'>Past 57 Days</OPTION><OPTION  VALUE='58'>Past 58 Days</OPTION><OPTION  VALUE='59'>Past 59 Days</OPTION><OPTION  VALUE='60'>Past 60 Days</OPTION><OPTION  VALUE='61'>Past 61 Days</OPTION><OPTION  VALUE='62'>Past 62 Days</OPTION><OPTION  VALUE='63'>Past 63 Days, 9 Weeks</OPTION><OPTION  VALUE='64'>Past 64 Days</OPTION><OPTION  VALUE='65'>Past 65 Days</OPTION><OPTION  VALUE='66'>Past 66 Days</OPTION><OPTION  VALUE='67'>Past 67 Days</OPTION><OPTION  VALUE='68'>Past 68 Days</OPTION><OPTION  VALUE='69'>Past 69 Days</OPTION><OPTION  VALUE='70'>Past 70 Days, 10 Weeks</OPTION><OPTION  VALUE='71'>Past 71 Days</OPTION><OPTION  VALUE='72'>Past 72 Days</OPTION><OPTION  VALUE='73'>Past 73 Days</OPTION><OPTION  VALUE='74'>Past 74 Days</OPTION><OPTION  VALUE='75'>Past 75 Days</OPTION><OPTION  VALUE='76'>Past 76 Days</OPTION><OPTION  VALUE='77'>Past 77 Days, 11 Weeks</OPTION><OPTION  VALUE='78'>Past 78 Days</OPTION><OPTION  VALUE='79'>Past 79 Days</OPTION><OPTION  VALUE='80'>Past 80 Days</OPTION><OPTION  VALUE='81'>Past 81 Days</OPTION><OPTION  VALUE='82'>Past 82 Days</OPTION><OPTION  VALUE='83'>Past 83 Days</OPTION><OPTION  VALUE='84'>Past 84 Days, 12 Weeks</OPTION><OPTION  VALUE='85'>Past 85 Days</OPTION><OPTION  VALUE='86'>Past 86 Days</OPTION><OPTION  VALUE='87'>Past 87 Days</OPTION><OPTION  VALUE='88'>Past 88 Days</OPTION><OPTION  VALUE='89'>Past 89 Days</OPTION><OPTION  VALUE='90'>Past 90 Days</OPTION></SELECT>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="10%" valign="top">&nbsp;</td>
+                                <td class="justifyalign"> "Historical Events" option is not supported for scheduled and scripted access traces.Traces executed via scripted access with "Historical Events" option will return events similar to "New Event" option. </td>
+                            </tr>
+                            -->
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="steps">6 - Select a sort order for your trace:</td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <table>
+                            <tr>
+                                <td align="right">1st</td>
+                                <td><SELECT NAME='sort_order_1' class="input_text"><OPTION SELECTED>None</OPTION><OPTION>Destination</OPTION><OPTION>Equip ID</OPTION><OPTION>Event Date/Time</OPTION><OPTION>Event (status)</OPTION><OPTION>Loaded or Empty</OPTION><OPTION>Location</OPTION><OPTION>Reporting Railroad</OPTION></SELECT></td>
+                                <td>
+                                    <input type="radio" name="sort_dir_1" value="A"  />Ascending
+                                    <input type="radio" name="sort_dir_1" value="D" CHECKED />Descending
+                                <td>
+                            </tr>
+
+                            <tr>
+                                <td align="right">2nd</td>
+                                <td><SELECT NAME='sort_order_2' class="input_text"><OPTION SELECTED>None</OPTION><OPTION>Destination</OPTION><OPTION>Equip ID</OPTION><OPTION>Event Date/Time</OPTION><OPTION>Event (status)</OPTION><OPTION>Loaded or Empty</OPTION><OPTION>Location</OPTION><OPTION>Reporting Railroad</OPTION></SELECT></td>
+                                <td>
+                                    <input type="radio" name="sort_dir_2" value="A"  />Ascending
+                                    <input type="radio" name="sort_dir_2" value="D" CHECKED />Descending
+                                <td>
+                            </tr>
+
+                            <tr>
+                                <td align="right">3rd</td>
+                                <td><SELECT NAME='sort_order_3' class="input_text"><OPTION SELECTED>None</OPTION><OPTION>Destination</OPTION><OPTION>Equip ID</OPTION><OPTION>Event Date/Time</OPTION><OPTION>Event (status)</OPTION><OPTION>Loaded or Empty</OPTION><OPTION>Location</OPTION><OPTION>Reporting Railroad</OPTION></SELECT></td>
+                                <td>
+                                    <input type="radio" name="sort_dir_3" value="A"  />Ascending
+                                    <input type="radio" name="sort_dir_3" value="D" CHECKED />Descending
+                                <td>
+                            </tr>
+                            <tr>
+                                <td align="right">&nbsp;</td>
+                                <td>
+                                    <input type="checkbox" name="chkSummary" value="1"  />
+                                    Display Summary
+                                </td>
+                                <td>&nbsp; </td>
+                                <td>&nbsp; </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3">
+
+
+                        <div align="center">
+                            <input type="button" class="input_button" name="Run Trace" value="Run"
+                                   onclick="return getController('RUNTRACE');"> &nbsp;&nbsp;&nbsp;
+                            <input class="input_button" type="submit" name="Save Trace" value="Save Trace" onclick="return getController('SAVETRACE');">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            <input type="Reset" class="input_button" value="Reset">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div class="backBut">[<a href="#" onclick="window.history.go(-1)">Back</a>]</div>
+                    </td>
+                </tr>
+            </table>
+
+
+        </form>
+
+    </div>
+</div>
+
+
+<div id="footer" class="footerLook">
+<div id="footerContent">
+<div class="roadLogos">
+	<table><tr>
+		<!--  Start code change for HT54299 by Seetharaman on 29 Jun 2005 -->
+		<td><div class="logoContainer"><a href="http://www.bnsf.com/" target="_blank"><img src="/images/bnsfLogo.gif" border="0"></a></div></td>
+		<!--  End code change for HT54299 by Seetharaman on 29 Jun 2005 -->
+		<td><div class="logoContainer"><a href="http://www.cn.ca/" target="_blank"><img src="/images/cnLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.cpr.ca/" target="_blank"><img src="/images/CP_Logo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.csx.com/" target="_blank"><img src="/images/csxtLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.kcsouthern.com/en-us/" target="_blank"><img src="/images/kcsLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.nscorp.com/" target="_blank"><img src="/images/nsLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.uprr.com/" target="_blank"><img src="/images/upLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.aslrra.org/" target="_blank"><img src="/images/aslrraLogo.gif" border="0"></a></div></td>
+		<td><div class="logoContainer"><a href="http://www.aar.org/" target="_blank"><img src="/images/aarLogo.gif" border="0"></a></div></td>
+	</tr>
+<!-- Start Code Change by Renga for GNATS 13814 on 02-Feb-2005-->
+		<TR>
+		  <TD colspan="9"><hr></TD>
+		</TR>
+        <TR>
+          <TD colspan="9" align="center">
+            <!-- Start Code Change by Harikrishnan for HT 42186 on 03-June-2005--> 
+            <A href="#" onclick="newPopupWindow('/legal','Copyright');" >Legal Notices</A> &nbsp;|&nbsp;
+            <A href="#" onclick="newPopupWindow('/terms');" >Terms of Service</A> &nbsp;|&nbsp;
+            <A href="#" onclick="newPopupWindow('/privacy');" >Privacy</A>
+<!-- End Code Change by Harikrishnan for HT 42186 on 03-June-2005--> 
+          </TD>
+        </TR>
+		<TR>
+          <TD colspan="9" align="center">
+          <!--Start Code Changes by Renga for HT40959 on 15-Feb-2005-->
+            	Copyright&nbsp;&copy;&nbsp;2002-<script>document.write( new Date().getFullYear() );</script>. <a href = "http://www.railinc.com">Railinc</a>. All rights reserved.
+          <!--End Code Changes by Renga for HT40959 on 15-Feb-2005-->
+          </TD>
+        </TR>
+<!--End Code Changes by Renga for GNATS 13814 on 02-Feb-2005-->	
+</table>
+</div></div>
+
+<script language="JavaScript" type="text/javascript">
+
+  function setItUp(){
+        if (! (typeof(NOMARGIN) == "undefined")) {
+		document.getElementById('appArea').style.marginLeft = "0px";
+		document.getElementById('footerContent').style.marginLeft = "100px";
+		return;
+	}
+
+     if ( document.getElementById( 'stLeftNavLook' ) ){
+			document.getElementById( 'leftNavLook' ).style.marginRight = "20px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     } else if(document.getElementById('leftNavLook') || document.getElementById('siNavLook')){
+			document.getElementById('appArea').style.marginLeft = "100px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+	 } else if(document.getElementById('siPatternNavLook')){
+			document.getElementById('appArea').style.marginLeft  = "190px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     } else if(document.getElementById('login')){
+			document.getElementById('appArea').style.marginLeft  = "150px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     } 
+     //start code change for HT54219 by vasu on 18-Oct-05
+     else if(document.getElementById('confirmDelete')){
+     		document.getElementById('footerContent').style.marginLeft = "0px";
+     }
+     //end code change for HT54219 by vasu on 18-Oct-05
+     
+     else{
+			document.getElementById('appArea').style.marginLeft  = "100px";
+			document.getElementById('footerContent').style.marginLeft = "150px";
+     }
+  }
+
+// Start Code Change by Renga for GNATS 13814 on 24-Sep-2004
+// newWindow function opens window with required info.
+  function newPopupWindow(url, anotherWin) {
+      if (location.protocol != 'https:') {
+          window.open("http://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+      } else {
+          window.open("https://" + document.location.host + url, 'newWindow1', 'width=550,height=500,toolbar=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+      }
+	  anotherWindow.focus()
+  }
+// End Code Change by Renga for GNATS 13814 on 24-Sep-2004
+
+// Start code added for GNATS 4800 by Pradeepa on 17-May-2004
+ function setItUpNetscape(){
+		if (! (typeof(NOMARGIN) == "undefined")) {
+		document.getElementById('appArea').style.marginLeft = "0px";
+		document.getElementById('footerContent').style.marginLeft = "100px";
+		return;
+		}
+
+		if(document.getElementById('leftNavLook') ){
+				document.getElementById('appArea').style.marginLeft = "100px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+		else if( document.getElementById('siNavLook')){
+
+					document.getElementById('appArea').style.marginLeft = "150px";
+					document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+		else if(document.getElementById('siPatternNavLook')){
+				document.getElementById('appArea').style.marginLeft  = "195px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		} else if(document.getElementById('login')){
+				document.getElementById('appArea').style.marginLeft  = "150px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+     //start code change for HT54219 by vasu on 18-Oct-05
+     else if(document.getElementById('confirmDelete')){
+     		document.getElementById('footerContent').style.marginLeft = "0px";
+     }
+     //end code change for HT54219 by vasu on 18-Oct-05
+		else{
+				document.getElementById('appArea').style.marginLeft  = "100px";
+				document.getElementById('footerContent').style.marginLeft = "150px";
+		}
+}
+
+// End code added for GNATS 4800 by Pradeepa on 17-May-2004
+
+</script>
+
+<script language="JavaScript" type="text/javascript">
+//Start code changed for GNATS 4800 by Pradeepa on 17-May-2004
+
+if(navigator.appName == "Netscape"){
+	setItUpNetscape();
+}
+else{
+	setItUp();
+}
+// End code changed for GNATS 4800 by Pradeepa on 17-May-2004
+</script>
+
+
+</div>
+
+<!-- Start of changes for US3862 add Google Analytics-->
+<script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-16377519-1");
+        pageTracker._trackPageview();
+    } catch (err) {
+    }
+</script>
+<!-- End of changes for US3862-->
+</body>
+</html>
+èHßü      d6n√d6n√Ew5Ÿd6mÍ   ê    O^partitionKey=%28https%2Crailinc.com%29,:https://steelroads.railinc.com/servlet/FrontServlet?CONTROLLER=ETCreateCtlr&ACTION=EXECUTE&LANGUAGE=en strongly-framed 1 security-info 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 request-method GET response-head HTTP/2 200 OK
+content-type: text/html
+date: Wed, 12 Apr 2023 08:38:02 GMT
+x-envoy-upstream-service-time: 27
+server: istio-envoy
+x-auth-envoy-filter-passthrough: yes
+x-cache: Miss from cloudfront
+via: 1.1 ad8162f27e48982c5acbcf012b7cab66.cloudfront.net (CloudFront)
+x-amz-cf-pop: DFW55-C3
+x-amz-cf-id: 0xIZhMtrY5p-tGpI0ITeNCnZn8X5NN3QIhMu7z6D52bp6uxIgl2q7Q==
+X-Firefox-Spdy: h2
+ original-response-headers content-type: text/html
+date: Wed, 12 Apr 2023 08:38:02 GMT
+x-envoy-upstream-service-time: 27
+server: istio-envoy
+x-auth-envoy-filter-passthrough: yes
+x-cache: Miss from cloudfront
+via: 1.1 ad8162f27e48982c5acbcf012b7cab66.cloudfront.net (CloudFront)
+x-amz-cf-pop: DFW55-C3
+x-amz-cf-id: 0xIZhMtrY5p-tGpI0ITeNCnZn8X5NN3QIhMu7z6D52bp6uxIgl2q7Q==
+X-Firefox-Spdy: h2
+ ctid 1 uncompressed-len 0 net-response-time-onstart 742 net-response-time-onstop 1009   åG
