@@ -24,7 +24,9 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.support import expected_conditions as EC
-
+import sharepy
+from sqlalchemy.dialects import registry 
+registry.register('snowflake', 'snowflake.sqlalchemy', 'dialect')
 # Modes: system (default), light, dark
 customtkinter.set_appearance_mode("light")
 # Themes: blue (default), dark-blue, green
