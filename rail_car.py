@@ -23,6 +23,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 
 # Modes: system (default), light, dark
@@ -42,14 +43,16 @@ def on_closing():
             raise e
         
 def report_callback_exception(self,exc, val, tb):
-        try:
-            msg = traceback.format_exc()
-            messagebox.showerror("Error", message=msg)
-            app.update()
-        except Exception as e:
-            print(f"Exception caught in report_callback_exception method: {e}")
-            logging.info(f"Exception caught in report_callback_exception method: {e}")
-            raise e
+        
+        msg = traceback.format_exc()
+        messagebox.showerror("Error", message=msg)
+        app.update()
+        logging.exception(str(msg))
+        # BU_LOG entry(Failed) in PROCESS_LOG table
+        log_json = '[{"JOB_ID": "'+str(job_id)+'","JOB_NAME": "'+str(job_name)+'","CURRENT_DATETIME": "'+str(datetime.now())+'","STATUS": "FAILED"}]'
+        bu_alerts.bulog(process_name=job_name,table_name=table_name,status='FAILED',process_owner=process_owner ,row_count=0,log=log_json,database=database,warehouse=warehouse)
+        bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'JOB FAILED -{job_name}',mail_body = f'{job_name} failed in __main__, Attached logs',attachment_location = logfile)
+        
 
 def resource_path(relative_path):
     try:
@@ -619,7 +622,7 @@ def movefiles(final_directory):
             destination_file = os.path.join(destination_folder, file_name)
             shutil.copy2(source_file, destination_file)
         return destination_folder   
-    except:
+    except Exception as e:
         logging.info(f"copy pasting database failed")
         print(f"copy pasting database failed")
         raise e
@@ -663,126 +666,126 @@ def main():
 
 
 if __name__ == "__main__": 
-    try:
-        logging.info("Execution Started")
-        time_start=time.time()
-        #Global VARIABLES
-        locations_list=[]
-        body = ''
-        dict3={}
-        today_date=date.today()
-        # log progress --
-        for handler in logging.root.handlers[:]:
-            logging.root.removeHandler(handler)
-        logfile = os.getcwd() + '\\' + 'logs' + '\\' + 'Rail_Car_Log_{}.txt'.format(str(today_date))
-        logging.basicConfig(
-            level=logging.INFO, 
-            format='%(asctime)s [%(levelname)s] - %(message)s',
-            filename=logfile)
-        logger = logging.getLogger()
-        logger.setLevel(logging.INFO)
-        directories_created=["Raw_Files","Logs","Renamed Files","Trace_report"]
-        for directory in directories_created:
-            path3 = os.path.join(os.getcwd(),directory)  
-            try:
-                os.makedirs(path3, exist_ok = True)
-                print("Directory '%s' created successfully" % directory)
-            except OSError as error:
-                print("Directory '%s' can not be created" % directory)       
-        files_location=os.getcwd() + "\\Raw_Files"
-        filesToUpload = os.listdir(os.getcwd() + "\\Raw_Files")
-        extracted_directory=os.getcwd() + "\\Renamed Files"
-        trace_directory=os.getcwd() + "\\Trace_report"
-        final_directory=os.getcwd() + "\\final_report"
-        logging.info('setting paTH TO download')
-        path = os.getcwd() + '\\Raw_Files'
-        logging.info('SETTING PROFILE SETTINGS FOR FIREFOX')
-        profile_path = os.getcwd()+f"\\customProfile"
-        profile = webdriver.FirefoxProfile(profile_directory=profile_path)
-        profile.set_preference('browser.download.folderList', 2)
-        profile.set_preference('browser.download.dir', path)
-        profile.set_preference('browser.download.useDownloadDir', True)
-        profile.set_preference('browser.download.viewableInternally.enabledTypes', "")
-        profile.set_preference('browser.helperApps.neverAsk.saveToDisk','Portable Document Format (PDF), application/pdf')
-        profile.set_preference('pdfjs.disabled', True)
-        logging.info('Adding firefox profile')
-        test_sheet = os.getcwd() +"\\Car_type_Mapping"+ f'\\mapping details.xlsx'
-        current_yr=today_date.year
-        current_month=today_date.strftime("%m")
-        job_id=np.random.randint(1000000,9999999)
+    
+    logging.info("Execution Started")
+    time_start=time.time()
+    #Global VARIABLES
+    locations_list=[]
+    body = ''
+    dict3={}
+    today_date=date.today()
+    # log progress --
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    logfile = os.getcwd() + '\\' + 'logs' + '\\' + 'Rail_Car_Log_{}.txt'.format(str(today_date))
+    logging.basicConfig(
+        level=logging.INFO, 
+        format='%(asctime)s [%(levelname)s] - %(message)s',
+        filename=logfile)
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    directories_created=["Raw_Files","Logs","Renamed Files","Trace_report"]
+    for directory in directories_created:
+        path3 = os.path.join(os.getcwd(),directory)  
+        try:
+            os.makedirs(path3, exist_ok = True)
+            print("Directory '%s' created successfully" % directory)
+        except OSError as error:
+            print("Directory '%s' can not be created" % directory)       
+    files_location=os.getcwd() + "\\Raw_Files"
+    filesToUpload = os.listdir(os.getcwd() + "\\Raw_Files")
+    extracted_directory=os.getcwd() + "\\Renamed Files"
+    trace_directory=os.getcwd() + "\\Trace_report"
+    final_directory=os.getcwd() + "\\final_report"
+    logging.info('setting paTH TO download')
+    path = os.getcwd() + '\\Raw_Files'
+    logging.info('SETTING PROFILE SETTINGS FOR FIREFOX')
+    profile_path = os.getcwd()+f"\\customProfile"
+    # profile = webdriver.FirefoxProfile(profile_directory=profile_path)
+    profile = webdriver.FirefoxProfile(profile_path)
+    profile.set_preference('browser.download.folderList', 2)
+    profile.set_preference('browser.download.dir', path)
+    profile.set_preference('browser.download.useDownloadDir', True)
+    profile.set_preference('browser.download.viewableInternally.enabledTypes', "")
+    profile.set_preference('browser.helperApps.neverAsk.saveToDisk','Portable Document Format (PDF), application/pdf')
+    profile.set_preference('pdfjs.disabled', True)
+    logging.info('Adding firefox profile')
+    test_sheet = os.getcwd() +"\\Car_type_Mapping"+ f'\\mapping details.xlsx'
+    current_yr=today_date.year
+    current_month=today_date.strftime("%m")
+    job_id=np.random.randint(1000000,9999999)
 
-        # Getting credential using bu_config
-        credential_dict = buconfig.get_config('RAIL_CAR_AUTOMATION', 'N', other_vert=True)
-        receiver_email = credential_dict['EMAIL_LIST']
-        job_name = credential_dict['PROJECT_NAME']
-        table_name = credential_dict['TABLE_NAME']
-        process_owner = credential_dict['IT_OWNER']
-        username =  credential_dict["USERNAME"].split(';')[0]
-        password = credential_dict["PASSWORD"].split(';')[0]
-        steel_username = credential_dict["USERNAME"].split(';')[1]
-        steel_password = credential_dict["PASSWORD"].split(';')[1]
-        source_url = credential_dict['SOURCE_URL'].split(';')[0]
-        steel_roads = credential_dict['SOURCE_URL'].split(';')[1]
-        database = credential_dict['DATABASE'].split(";")[0]
-        warehouse = credential_dict['DATABASE'].split(";")[1]
-        processname = credential_dict['PROJECT_NAME']
-        # schema = credential_dict['TABLE_SCHEMA']
-        #####################Uncomment for Test############################
-        # processname = "RAIL_CAR_AUTOMATION"
-        # process_owner = 'Yash Jain'
-        # source_url= 'https://www.railconnect.com'
-        # steel_roads= 'https://steelroads.railinc.com/index.jsp'
-        # steel_username = 'WPJTOWN1'
-        # steel_password = 'Wheat010'
-        # username= 'gwrwpnt'
-        # password = 'Wheat02'
-        # receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com,bharat.pathak@biourja.com'
-        # # check= None
-        # #snowflake variables
-        # database = ''
-        # # Database = "POWERDB_DEV"
-        # schema = '' 
-        # table_name = ''
-        ##################################################################
+    # Getting credential using bu_config
+    credential_dict = buconfig.get_config('RAIL_CAR_AUTOMATION', 'N', other_vert=True)
+    receiver_email = credential_dict['EMAIL_LIST']
+    job_name = credential_dict['PROJECT_NAME']
+    table_name = credential_dict['TABLE_NAME']
+    process_owner = credential_dict['IT_OWNER']
+    username =  credential_dict["USERNAME"].split(';')[0]
+    password = credential_dict["PASSWORD"].split(';')[0]
+    steel_username = credential_dict["USERNAME"].split(';')[1]
+    steel_password = credential_dict["PASSWORD"].split(';')[1]
+    source_url = credential_dict['SOURCE_URL'].split(';')[0]
+    steel_roads = credential_dict['SOURCE_URL'].split(';')[1]
+    database = credential_dict['DATABASE'].split(";")[0]
+    warehouse = credential_dict['DATABASE'].split(";")[1]
+    processname = credential_dict['PROJECT_NAME']
+    # schema = credential_dict['TABLE_SCHEMA']
+    #####################Uncomment for Test############################
+    # processname = "RAIL_CAR_AUTOMATION"
+    # process_owner = 'Yash Jain'
+    # source_url= 'https://www.railconnect.com'
+    # steel_roads= 'https://steelroads.railinc.com/index.jsp'
+    # steel_username = 'WPJTOWN1'
+    # steel_password = 'Wheat010'
+    # username= 'gwrwpnt'
+    # password = 'Wheat02'
+    # receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com,bharat.pathak@biourja.com'
+    # # check= None
+    # #snowflake variables
+    # database = ''
+    # # Database = "POWERDB_DEV"
+    # schema = '' 
+    # table_name = ''
+    ##################################################################
+    
+
+    # BU_LOG entry(started) in PROCESS_LOG table
+    log_json = '[{"JOB_ID": "'+str(job_id)+'","JOB_NAME": "'+str(job_name)+'","CURRENT_DATETIME": "'+str(datetime.now())+'","STATUS": "STARTED"}]'
+    bu_alerts.bulog(process_name=job_name,table_name=table_name,status='STARTED',process_owner=process_owner ,row_count=0,log=log_json,database=database,warehouse=warehouse)
+
+    app = customtkinter.CTk()  # create CTk window like you do with the Tk window
+    app.title("Biourja Renewables")
+    app["bg"]= "#e2e1ef"
+    biourjaLogo = resource_path('biourjaLogo.png')
+    photo = tkinter.PhotoImage(file = biourjaLogo)
+    app.iconphoto(False, photo)
+    screen_width = app.winfo_screenwidth()
+    screen_height = app.winfo_screenheight()
+    width2 = 420
+    height2 = 190
+    x2 = (screen_width/2) - (width2/2)
+    y2 = (screen_height/2) - (height2/2)
+    app.geometry('%dx%d+%d+%d' % (width2, height2, x2, y2))
+    settings_frame = customtkinter.CTkFrame(app, width=50)
+    settings_frame.pack(fill=tkinter.X, side=tkinter.TOP, padx=2, pady=2)
+    settings_frame.grid_columnconfigure(0, weight=1)
+    settings_frame.grid_rowconfigure(3, weight=1)    
+
+    button_text=tkinter.StringVar()
+    #text_font=("SF Display",-13))
+    button = customtkinter.CTkButton(master=app, textvariable=button_text, command=button_function,width=160,height=36)
+    button_text.set("Generate Trace Report")
+    button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+    app.protocol("WM_DELETE_WINDOW", on_closing)
+    Tk.report_callback_exception = report_callback_exception 
+    options = Options()
+    options.headless=False
+    options.profile = profile
+    driver=webdriver.Firefox(executable_path=GeckoDriverManager().install(),options=options)
+    app.mainloop()
+    # main()
+    time_end=time.time()
+    logging.info(f'It takes {time_start-time_end} seconds to run')
+    
         
-
-        # BU_LOG entry(started) in PROCESS_LOG table
-        log_json = '[{"JOB_ID": "'+str(job_id)+'","JOB_NAME": "'+str(job_name)+'","CURRENT_DATETIME": "'+str(datetime.now())+'","STATUS": "STARTED"}]'
-        bu_alerts.bulog(process_name=job_name,table_name=table_name,status='STARTED',process_owner=process_owner ,row_count=0,log=log_json,database=database,warehouse=warehouse)
-
-        app = customtkinter.CTk()  # create CTk window like you do with the Tk window
-        app.title("Biourja Renewables")
-        app["bg"]= "#e2e1ef"
-        biourjaLogo = resource_path('biourjaLogo.png')
-        photo = tkinter.PhotoImage(file = biourjaLogo)
-        app.iconphoto(False, photo)
-        screen_width = app.winfo_screenwidth()
-        screen_height = app.winfo_screenheight()
-        width2 = 420
-        height2 = 190
-        x2 = (screen_width/2) - (width2/2)
-        y2 = (screen_height/2) - (height2/2)
-        app.geometry('%dx%d+%d+%d' % (width2, height2, x2, y2))
-        settings_frame = customtkinter.CTkFrame(app, width=50)
-        settings_frame.pack(fill=tkinter.X, side=tkinter.TOP, padx=2, pady=2)
-        settings_frame.grid_columnconfigure(0, weight=1)
-        settings_frame.grid_rowconfigure(3, weight=1)    
-
-        button_text=tkinter.StringVar()
-        #text_font=("SF Display",-13))
-        button = customtkinter.CTkButton(master=app, textvariable=button_text, command=button_function,width=160,height=36)
-        button_text.set("Generate Trace Report")
-        button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
-        app.protocol("WM_DELETE_WINDOW", on_closing)
-        Tk.report_callback_exception = report_callback_exception   
-        driver=webdriver.Firefox(executable_path=GeckoDriverManager().install(),firefox_profile=profile)
-        app.mainloop()
-        # main()
-        time_end=time.time()
-        logging.info(f'It takes {time_start-time_end} seconds to run')
-    except Exception as e:
-        logging.exception(str(e))
-        # BU_LOG entry(Failed) in PROCESS_LOG table
-        log_json = '[{"JOB_ID": "'+str(job_id)+'","JOB_NAME": "'+str(job_name)+'","CURRENT_DATETIME": "'+str(datetime.now())+'","STATUS": "FAILED"}]'
-        bu_alerts.bulog(process_name=job_name,table_name=table_name,status='FAILED',process_owner=process_owner ,row_count=0,log=log_json,database=database,warehouse=warehouse)
-        bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'JOB FAILED -{job_name}',mail_body = f'{job_name} failed in __main__, Attached logs',attachment_location = logfile)

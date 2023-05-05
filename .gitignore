@@ -50,5 +50,5 @@ MANIFEST
 logs/*
 
 # Per-project virtualenvs
-.venv*/
+venv/*
 .conda*/
