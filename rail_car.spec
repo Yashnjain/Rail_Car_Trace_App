@@ -8,7 +8,7 @@ a = Analysis(
     ['rail_car.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\imam.khan\\OneDrive - BioUrja Trading LLC\\Documents\\railcar_trace_automation\\venv\\Lib\\site-packages\\customtkinter', 'customtkinter'), ('C:\\Users\\imam.khan\\OneDrive - BioUrja Trading LLC\\Documents\\railcar_trace_automation\\venv\\Lib\\site-packages\\bu_snowflake\\rsa_key.p8', './bu_snowflake'), ('C:\\Users\\imam.khan\\OneDrive - BioUrja Trading LLC\\Documents\\railcar_trace_automation\\Car_type_Mapping', 'Car_type_Mapping'), ('C:\\Users\\imam.khan\\OneDrive - BioUrja Trading LLC\\Documents\\railcar_trace_automation\\database_old', 'database_old'), ('C:\\Users\\imam.khan\\OneDrive - BioUrja Trading LLC\\Documents\\railcar_trace_automation\\final_report', 'final_report'), ('C:\\Users\\imam.khan\\OneDrive - BioUrja Trading LLC\\Documents\\railcar_trace_automation\\customProfile', 'customProfile'), ('biourjaLogo.png', '.')],
+    datas=[('C:\\Users\\Yashn.jain\\AppData\\Roaming\\Python\\Python38\\site-packages\\customtkinter', 'customtkinter'), ('C:\\Users\\Yashn.jain\\AppData\\Roaming\\Python\\Python38\\site-packages\\bu_snowflake\\rsa_key.p8', './bu_snowflake'), ('C:\\rail car\\Car_type_Mapping', 'Car_type_Mapping'), ('C:\\rail car\\database_old', 'database_old'), ('C:\\rail car\\final_report', 'final_report'), ('C:\\rail car\\customProfile', 'customProfile'), ('biourjaLogo.png', '.')],
     hiddenimports=['snowflake', 'snowflake-connector-python', 'webdriver_manager.firefox', 'sharepy', 'tkcalendar', 'babel.numbers', 'xlwings', 'pandas', 'bu_config', 'bu_alerts'],
     hookspath=[],
     hooksconfig={},
@@ -37,7 +37,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='biourjaLogo.ico',
+    icon=['biourjaLogo.ico'],
 )
 coll = COLLECT(
     exe,

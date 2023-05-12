@@ -229,7 +229,7 @@ def tracereport_dwonload():
         logging.info(f"Exception caught in tracereport_dwonload method: {e}")
         raise e 
 
-def combine_reports(des_text,key,in_var):
+def combine_reports(des_text,key):
     try:
         global comp_list
         comp_list=[]
@@ -280,32 +280,31 @@ def combine_reports(des_text,key,in_var):
         tr_wb.app.api.CutCopyMode=False
         #djfnvj
         db_car_nak=tr_ws1.range(f"{last_column_letter_plus1}2:{last_column_letter_plus1}{last_row}").options(pd.DataFrame,header=1,index=False).value  
-        tr_wb.save(final_directory+"\\"+f"{in_var}_Trace_Report_{key}_initial.xlsx")
-        if in_var == 'Enroute':
-            if os.path.exists(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx"):
-                print(f"there may be a new rail car for {in_var} - {key}")
-                logging.info(f"database present for {in_var} - {key}")
-                retry=0
-                while retry < 10:
-                    try:
-                        db_wb=xw.Book(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx")
-                        break
-                    except Exception as e:
-                        time.sleep(5)
-                        retry+=1
-                        if retry ==10:
-                            raise e
-                # db_wb.activate()
-                db_ws1 = db_wb.sheets[0] 
-                car_no_add = db_ws1.range(f"O1").end('down').address.replace("$","")
-                car_last_rw = db_ws1.range(f'O'+ str(db_ws1.cells.last_cell.row)).end('up').row
-                car_db_last=db_ws1.range(f"{car_no_add}:O{car_last_rw}").options(pd.DataFrame,header=1,index=False).value
-                common = pd.merge(db_car_nak, car_db_last, on=['Car_no'], how='inner')
-                comp_db =pd.concat([db_car_nak,common]).drop_duplicates(keep=False) 
-                comp_list=list(comp_db['Car_no'])
-                time.sleep(1)
-                db_wb.close()
-                time.sleep(1)
+        tr_wb.save(final_directory+"\\"+f"Trace_Report_{key}_initial.xlsx")
+        if os.path.exists(final_directory+"\\"+f"Trace_Report_{key}.xlsx"):
+            print(f"there may be a new rail car for - {key}")
+            logging.info(f"database present for - {key}")
+            retry=0
+            while retry < 10:
+                try:
+                    db_wb=xw.Book(final_directory+"\\"+f"Trace_Report_{key}.xlsx")
+                    break
+                except Exception as e:
+                    time.sleep(5)
+                    retry+=1
+                    if retry ==10:
+                        raise e
+            # db_wb.activate()
+            db_ws1 = db_wb.sheets[0] 
+            car_no_add = db_ws1.range(f"O1").end('down').address.replace("$","")
+            car_last_rw = db_ws1.range(f'O'+ str(db_ws1.cells.last_cell.row)).end('up').row
+            car_db_last=db_ws1.range(f"{car_no_add}:O{car_last_rw}").options(pd.DataFrame,header=1,index=False).value
+            common = pd.merge(db_car_nak, car_db_last, on=['Car_no'], how='inner')
+            comp_db =pd.concat([db_car_nak,common]).drop_duplicates(keep=False) 
+            comp_list=list(comp_db['Car_no'])
+            time.sleep(1)
+            db_wb.close()
+            time.sleep(1)
         # tr_wb.save(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx")
         last_rov = tr_ws1.range(f'A'+ str(tr_ws1.cells.last_cell.row)).end('up').row
         custum_sort(tr_wb,tr_ws1,f"D3:D{last_rov}",f"H3:H{last_rov}")
@@ -360,20 +359,19 @@ def combine_reports(des_text,key,in_var):
                     interior_coloring(colour_value="5874847",cellrange=f"A{l3[0]}:N{l3[0]}",working_sheet=tr_ws1,working_workbook=tr_wb)
                 diff_count = len(l3)
                 tr_ws1.api.Range(f"D1").AutoFilter(Field:=8)
-        tr_ws1.api.Range(f"D1").AutoFilter(Field:=4)   
-        for i in [pa_count,pc_count,diff_count]:
-            if i>0 and i ==pa_count:
-                tr_ws1.api.Range("2:2").EntireRow.Insert()
-                tr_ws1.api.Range("A2").Value = f"{pa_count} On Hand"
-                interior_coloring(colour_value="65535",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)
-            if i>0 and i ==pc_count:
-                tr_ws1.api.Range("2:2").EntireRow.Insert()
-                tr_ws1.api.Range("A2").Value = f"{pc_count} PC"
-                interior_coloring(colour_value="5287936",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)
-            if i>0 and i ==diff_count:
-                tr_ws1.api.Range("2:2").EntireRow.Insert()
-                tr_ws1.api.Range("A2").Value = f"{diff_count} CO"
-                interior_coloring(colour_value="5874847",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)
+        tr_ws1.api.Range(f"D1").AutoFilter(Field:=4)  
+        if diff_count>0:
+            tr_ws1.api.Range("2:2").EntireRow.Insert()
+            tr_ws1.api.Range("A2").Value = f"{diff_count} CO"
+            interior_coloring(colour_value="5874847",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)         
+        if pc_count>0:
+            tr_ws1.api.Range("2:2").EntireRow.Insert()
+            tr_ws1.api.Range("A2").Value = f"{pc_count} PC"
+            interior_coloring(colour_value="5287936",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)
+        if pa_count>0:
+            tr_ws1.api.Range("2:2").EntireRow.Insert()
+            tr_ws1.api.Range("A2").Value = f"{pa_count} On Hand"
+            interior_coloring(colour_value="65535",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)
         if len(comp_list)>0:
             for car_no in comp_list:
                 tr_ws1.activate()
@@ -382,15 +380,15 @@ def combine_reports(des_text,key,in_var):
                 brow_value = re.findall("\d+",bcell_value)[0]
                 interior_coloring(colour_value="255",cellrange=f"A{int(brow_value)}:N{int(brow_value)}",working_sheet=tr_ws1,working_workbook=tr_wb)
                 # check = True 
-        combinedfile = final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx"
+        combinedfile = final_directory+"\\"+f"Trace_Report_{key}.xlsx"
         tr_ws1.autofit()
         tr_ws1.api.Columns("A:A").ColumnWidth = 11.14
         time.sleep(1)
-        if os.path.exists(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx"):
-            os.remove(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx")
-        tr_wb.save(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx")
+        if os.path.exists(combinedfile):
+            os.remove(combinedfile)
+        tr_wb.save(combinedfile)
         time.sleep(1)
-        tr_wb.close()
+        tr_wb.app.quit()
         time.sleep(1)
         # last_rovf = tr_ws1.range(f'A'+ str(tr_ws1.cells.last_cell.row)).end('up').row 
         if key == 'CORN':
@@ -426,75 +424,77 @@ def download_wait(directory, nfiles = None):
         logging.info(f"Exception caught in download_wait method: {e}")
         raise e
 
-def processing_excel(input_sheet):
-    try:
-        global wb
 
-        in_var =  input_sheet.split(".")[0]           
-        retry=0
-        while retry < 10:
-            try:
-                wb=xw.Book(extracted_directory+"\\"+input_sheet)
-                break
-            except Exception as e:
-                time.sleep(5)
-                retry+=1
-                if retry ==10:
-                    raise e
-        
-        wb.activate()            
-        ws1 = wb.sheets[0]  
-        ws1.activate() 
-        ws1.cells.unmerge()
-        last_row = ws1.range(f'A'+ str(ws1.cells.last_cell.row)).end('up').row
-        if "Enroute" in input_sheet:
-            values = ws1.range(f'C3:C{last_row}').value
-            or_values = [name.replace(" ","") for name in values]
-            ws1.range(f"C3").options(transpose=True).value = or_values
-            car_no_column = 'C'
-        else:
-            if 'Total' in ws1.range("A1").value:
-                ws1.api.Range("1:1").EntireRow.Delete()
-            ws1.api.Range("1:1").EntireRow.Insert()
-            ws1.range("A1").value = f"=A2&A3"  
-            last_column_letter=num_to_col_letters(ws1.range('A2').end('right').last_cell.column)
-            ws1.range(f"A1").api.Select()
-            wb.app.api.Selection.AutoFill(Destination:=ws1.api.Range(f"A1:{last_column_letter}1"),Type:=win32c.AutoFillType.xlFillDefault)
-            ws1.api.Rows("1:1").Select()
-            wb.app.api.Selection.Copy()
-            wb.app.api.Selection.PasteSpecial(Paste:=-4163, Operation:=-4142, SkipBlanks:=False, Transpose:=False)
-            ws1.api.Range("2:3").EntireRow.Delete()
-            ws1.api.Range("F:F").EntireColumn.Insert()
-            ws1.range('F2').value = f"=D2&E2"
+def combining_one_file(input_sheet):
+        try:
+            global wb
+
+            in_var =  input_sheet.split(".")[0]           
+            retry=0
+            while retry < 10:
+                try:
+                    wb=xw.Book(extracted_directory+"\\"+input_sheet)
+                    break
+                except Exception as e:
+                    time.sleep(5)
+                    retry+=1
+                    if retry ==10:
+                        raise e
+            
+            wb.activate()            
+            ws1 = wb.sheets[0]  
+            ws1.activate() 
+            ws1.cells.unmerge()
             last_row = ws1.range(f'A'+ str(ws1.cells.last_cell.row)).end('up').row
-            ws1.range('F1').value = f"Com_Car_No"
-            ws1.range(f"F2:F{last_row}").api.Select()
-            wb.app.api.Selection.FillDown()
-            car_no_column = 'F'
-        try:    
-            column_list = ws1.range("A1").expand('right').value
-            cmo_column_no = column_list.index('Commodity')+1
-            cmo_No_column_letter=num_to_col_letters(cmo_column_no)
-        except:
-            lst_cm_no = ws1.range("A1").end('right').end('right').end('right').column
-            lst_letter = num_to_col_letters(lst_cm_no)
-            column_list = ws1.range(f"A1:{lst_letter}1").value
-            cmo_column_no = column_list.index('Commodity')+1
-            cmo_No_column_letter=num_to_col_letters(cmo_column_no) 
-        filters = list(set(ws1.range(f'{cmo_No_column_letter}3:{cmo_No_column_letter}{last_row}').value))
+            if "Enroute" in input_sheet:
+                values = ws1.range(f'C3:C{last_row}').value
+                or_values = [name.replace(" ","") for name in values]
+                ws1.range(f"C3").options(transpose=True).value = or_values
+                df=ws1.range(f"A3").expand('table').options(pd.DataFrame,header=0,index=False).value
+                df= df[[2,4]]
+                df.columns = ["Car_No","Commodity"]
+            else:
+                if 'Total' in ws1.range("A1").value:
+                    ws1.api.Range("1:1").EntireRow.Delete()
+                ws1.api.Range("1:1").EntireRow.Insert()
+                ws1.range("A1").value = f"=A2&A3"  
+                last_column_letter=num_to_col_letters(ws1.range('A2').end('right').last_cell.column)
+                ws1.range(f"A1").api.Select()
+                wb.app.api.Selection.AutoFill(Destination:=ws1.api.Range(f"A1:{last_column_letter}1"),Type:=win32c.AutoFillType.xlFillDefault)
+                ws1.api.Rows("1:1").Select()
+                wb.app.api.Selection.Copy()
+                wb.app.api.Selection.PasteSpecial(Paste:=-4163, Operation:=-4142, SkipBlanks:=False, Transpose:=False)
+                ws1.api.Range("2:3").EntireRow.Delete()
+                ws1.api.Range("F:F").EntireColumn.Insert()
+                ws1.range('F2').value = f"=D2&E2"
+                last_row = ws1.range(f'A'+ str(ws1.cells.last_cell.row)).end('up').row
+                ws1.range('F1').value = f"Com_Car_No"
+                ws1.range(f"F2:F{last_row}").api.Select()
+                wb.app.api.Selection.FillDown()
+                df=ws1.range(f"A2").expand('table').options(pd.DataFrame,header=0,index=False).value
+                df= df[[5,8]]
+                df.columns = ["Car_No","Commodity"]
+
+            wb.app.quit() 
+            return df  
+        except Exception as e:
+            print(f"Exception caught in combining_one_file method: {e}")
+            logging.info(f"Exception caught in combining_one_file method: {e}")
+            raise e         
+
+
+def processing_excel(dfs):
+    try:
         TRUE_UP_DF = pd.read_excel(test_sheet)
         TRUE_UP_index_dict = {}
         for i,x in TRUE_UP_DF.iterrows():
                 TRUE_UP_index_dict.setdefault(TRUE_UP_DF[TRUE_UP_DF.columns[0]][i], []).append(TRUE_UP_DF[TRUE_UP_DF.columns[1]][i])
         for key,value in TRUE_UP_index_dict.items():
             print(f"commodity - {value}")
-            ws1.activate() 
-            ws1.api.Range(f"{cmo_No_column_letter}1").AutoFilter(Field:=f'{cmo_column_no}', Criteria1:=value ,Operator:=7)
-            a,b,c=row_range_calc(f"{car_no_column}",ws1,wb)
-            if a[0]!=a[-1]:
-                ws1.api.Range(f"{car_no_column}{a[0]}:{car_no_column}{a[-1]}").SpecialCells(win32c.CellType.xlCellTypeVisible).Copy()
-            elif a[0]==a[-1] and a[0]!=1:
-                ws1.api.Range(f"{car_no_column}{a[0]}").Copy()
+            # ws1.activate() 
+            fil_dfs = dfs[dfs['Commodity'].isin(value)] 
+            if len(fil_dfs)>0:
+                fil_dfs['Car_No'].to_clipboard(index=False,header=None)
             else:
                 print("no values found to filter")
                 continue
@@ -504,23 +504,13 @@ def processing_excel(input_sheet):
             WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "textarea[name='carlist']"))).click() 
             WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "textarea[name='carlist']"))).send_keys(Keys.CONTROL, "v")
             des_text = tracereport_dwonload()
-            combine_reports(des_text,key,in_var)
-             # logger.info("modifying email")
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[value='Modify']"))).click()
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "textarea[name='addresses']"))).clear()
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "textarea[name='addresses']"))).send_keys("yashn.jain@biourja.com")
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "textarea[name='addresses']"))).send_keys(Keys.ENTER)
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "textarea[name='addresses']"))).send_keys("itdevsupport@biourja.com")
-            # logger.info("send report and continue")
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[value='Send Report']"))).click()
-            # WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[value='Continue']"))).click()
+            combine_reports(des_text,key)
+
         print("opened") 
-        time.sleep(1) 
-        wb.app.quit()  
         time.sleep(1)    
     except Exception as e:
         print(f"Exception caught in processing_excel method: {e}")
-        logging.info(f"Exception caught in download_wait method: {e}")
+        logging.info(f"Exception caught in processing_excel method: {e}")
         raise e  
 
 
@@ -528,7 +518,6 @@ def login_and_download():
     '''This function downloads log in to the website'''
     try:
         logging.info('Accesing website')
-            # year='2022'                #change here to run for a particular year
         driver.get(f"{source_url}")
         time.sleep(5)  
         logging.info('providing id and passwords')
@@ -539,10 +528,6 @@ def login_and_download():
         logging.info('click on Login Button')
         WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "btnLogin"))).click()
         time.sleep(5)
-        # table_element=WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "tblAction")))
-        # df=pd.read_html(table_element.get_attribute('outerHTML'),header=0)[0] 
-        # columns = list(df.columns[:2])
-        # req_df = df[list(df.columns[:2])]
         dict1={"Enroute":'main_lblenrouteload',"Inbound":'main_lblinboundload',"Onhand":'main_lblonhandload'}
         for key, value in dict1.items():
             car_no =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value))).text)
@@ -569,8 +554,6 @@ def login_to_steelroads():
     '''This function downloads log in to the website'''
     try:
         logging.info('Accesing website')
-            # year='2022'                #change here to run for a particular year
-        
         received_response = requests.get(steel_roads) 
         if received_response.status_code==200:
             driver.get(f"{steel_roads}")
@@ -589,17 +572,7 @@ def login_to_steelroads():
                 time.sleep(5)
             except:
                 print("login successfull")
-
-            # filesToUpload = os.listdir(extracted_directory)
-            # for files in filesToUpload:
-            #     if "Enroute" in files:
-            #         time.sleep(1)
-
-            #     elif "" in files:
-            #         time.sleep(1)
-            #         # logging.info(f"No Loaded railcars for {key}")
-            #     else:
-            #         print("new file arrived")    
+   
         else:
             logging.info(f"vpn issues or server is not available")
             print("vpn issues or server is not available")
@@ -638,28 +611,28 @@ def main():
         destination_folder  = movefiles(final_directory)
         # no_of_rows=
         login_and_download()
-        login_to_steelroads()
+        dfs=pd.DataFrame()
         for files in os.listdir(extracted_directory):
             try:
-                processing_excel(files)
+                df = combining_one_file(files)
+                dfs = pd.concat([df,dfs])
             except Exception as e:
                 logging.exception(str(e))
                 raise e
+        dfs = dfs.reset_index(drop=True)    
+        login_to_steelroads()    
+        processing_excel(dfs)    
         locations_list.append(logfile)
         try:
             driver.quit()
         except:
             pass
         remove_existing_files(destination_folder)
-        # bu_alerts.bulog(process_name=processname,database=Database,status='Completed',table_name='',
-        # row_count=no_of_rows, log=log_json, warehouse='ITPYTHON_WH',process_owner=process_owner)
-
         log_json='[{"JOB_ID": "'+str(job_id)+'","CURRENT_DATETIME": "'+str(datetime.now())+'"}]'
         bu_alerts.bulog(process_name= processname,database=database,status='COMPLETED',table_name=table_name,
             row_count=no_of_rows, log=log_json, warehouse=warehouse,process_owner=process_owner)  
         bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'JOB SUCCESS - {job_name}',mail_body = f'{job_name} completed successfully, Attached Logs',attachment_location = logfile)
     except Exception as e:
-
         log_json='[{"JOB_ID": "'+str(job_id)+'","CURRENT_DATETIME": "'+str(datetime.now())+'"}]'
         bu_alerts.bulog(process_name= processname,database=database,status='Failed',table_name=table_name,
             row_count=no_of_rows, log=log_json, warehouse=warehouse,process_owner=process_owner)
