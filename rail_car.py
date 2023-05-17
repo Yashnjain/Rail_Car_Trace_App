@@ -638,7 +638,7 @@ def main():
         bu_alerts.bulog(process_name= processname,database=database,status='Failed',table_name=table_name,
             row_count=no_of_rows, log=log_json, warehouse=warehouse,process_owner=process_owner)
         logging.exception(str(e))
-        bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'JOB FAILED -{job_name}',mail_body = f'{job_name} failed, Attached logs',multiple_attachment_list = logfile)
+        bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'JOB FAILED -{job_name}',mail_body = f'{job_name} failed, Attached logs',attachment_location = logfile)
 
 
 if __name__ == "__main__": 
