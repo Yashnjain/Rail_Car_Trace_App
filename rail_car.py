@@ -126,12 +126,13 @@ def num_to_col_letters(num):
         logging.info(f"Exception caught in num_to_col_letters method: {e}")
         raise e
 
-def custum_sort(workbook,worksheet,range1,range2):
+def custum_sort(workbook,worksheet,range1,range2,range3):
     try:
-        worksheet.api.AutoFilter.Sort.SortFields.Clear()
-        worksheet.api.AutoFilter.Sort.SortFields.Add2(Key:=worksheet.api.Range(range1), SortOn:=win32c.SortOn.xlSortOnValues, Order:=win32c.SortOrder.xlAscending,CustomOrder:="CO", DataOption:=win32c.SortDataOption.xlSortNormal)
-        worksheet.api.AutoFilter.Sort.SortFields.Add2(Key:=worksheet.api.Range(range2), SortOn:=win32c.SortOn.xlSortOnValues, Order:=win32c.SortOrder.xlAscending,CustomOrder:="Placed Actual,Placed Construct", DataOption:=win32c.SortDataOption.xlSortNormal)
-        a = workbook.app.api.ActiveSheet.AutoFilter.Sort
+        worksheet.api.Sort.SortFields.Clear()
+        worksheet.api.Sort.SortFields.Add2(Key:=worksheet.api.Range(range1), SortOn:=win32c.SortOn.xlSortOnValues, Order:=win32c.SortOrder.xlAscending,CustomOrder:="CO", DataOption:=win32c.SortDataOption.xlSortNormal)
+        worksheet.api.Sort.SortFields.Add2(Key:=worksheet.api.Range(range2), SortOn:=win32c.SortOn.xlSortOnValues, Order:=win32c.SortOrder.xlAscending,CustomOrder:="Placed Actual,Placed Construct", DataOption:=win32c.SortDataOption.xlSortNormal)
+        a = workbook.app.api.ActiveSheet.Sort
+        a.SetRange(Rng=worksheet.api.Range(range3))
         a.Header = win32c.YesNoGuess.xlYes
         a.MatchCase = False
         a.Orientation = win32c.Constants.xlTopToBottom
@@ -267,7 +268,7 @@ def combine_reports(des_text,key):
         we_wb.close()
         tr_ws1.api.Range("1:1").EntireRow.Insert()
         tr_ws1.range("A1").value=des_text
-        tr_ws1.api.Range(f"A2").AutoFilter(Field:=1)
+        # tr_ws1.api.Range(f"A2").AutoFilter(Field:=1)
         last_column_letter_plus1=num_to_col_letters(tr_ws1.range('A2').end('right').last_cell.column+1)
         tr_ws1.range(f"{last_column_letter_plus1}2").value = 'Car_no'
         tr_ws1.range(f"{last_column_letter_plus1}3").value = f'=A3&B3'
@@ -307,7 +308,7 @@ def combine_reports(des_text,key):
             time.sleep(1)
         # tr_wb.save(final_directory+"\\"+f"{in_var}_Trace_Report_{key}.xlsx")
         last_rov = tr_ws1.range(f'A'+ str(tr_ws1.cells.last_cell.row)).end('up').row
-        custum_sort(tr_wb,tr_ws1,f"D3:D{last_rov}",f"H3:H{last_rov}")
+        custum_sort(tr_wb,tr_ws1,f"D3:D{last_rov}",f"H3:H{last_rov}",f"A2:O{last_rov}")
         state_types = tr_ws1.range(f"D3:D{last_rov}").value
         tr_ws1.api.Range(f"2:2").Font.Bold = True
         pa_count = 0
