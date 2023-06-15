@@ -13,6 +13,7 @@ import pandas as pd
 import xlwings as xw
 import customtkinter
 from selenium import webdriver
+from collections import Counter
 from datetime import date,datetime
 import xlwings.constants as win32c
 from tkinter import messagebox,Tk
@@ -25,7 +26,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
-import sharepy
 from sqlalchemy.dialects import registry 
 registry.register('snowflake', 'snowflake.sqlalchemy', 'dialect')
 # Modes: system (default), light, dark
@@ -234,6 +234,7 @@ def combine_reports(des_text,key):
     try:
         global comp_list
         comp_list=[]
+        send_check = True
         print("inside combine_reports")
         retry=0
         while retry < 10:
@@ -360,7 +361,8 @@ def combine_reports(des_text,key):
                     interior_coloring(colour_value="5874847",cellrange=f"A{l3[0]}:N{l3[0]}",working_sheet=tr_ws1,working_workbook=tr_wb)
                 diff_count = len(l3)
                 tr_ws1.api.Range(f"D1").AutoFilter(Field:=8)
-        tr_ws1.api.Range(f"D1").AutoFilter(Field:=4)  
+        tr_ws1.api.Range(f"D1").AutoFilter(Field:=4) 
+        color_dict = {65535:"On Hand",5287936:"PC",5874847:"CO"} 
         if diff_count>0:
             tr_ws1.api.Range("2:2").EntireRow.Insert()
             tr_ws1.api.Range("A2").Value = f"{diff_count} CO"
@@ -387,16 +389,69 @@ def combine_reports(des_text,key):
         time.sleep(1)
         if os.path.exists(combinedfile):
             os.remove(combinedfile)
+        
+        color_list = []
+        #logic for removing other destination cities    
+        tr_ws1.api.Cells.Find(What:="Car_no", After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Activate()
+        bcell_value = tr_ws1.api.Application.ActiveCell.Address.replace("$","")
+        brow_value = int(re.findall("\d+",bcell_value)[0])
+        lr = tr_ws1.range(f'A'+ str(tr_ws1.cells.last_cell.row)).end('up').row
+        des_column_no = tr_ws1.api.Cells.Find(What:="Destination City", After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Column
+        des_column_letter = num_to_col_letters(des_column_no)
+        new_column_letter = num_to_col_letters(des_column_no+1)
+        tr_ws1.api.Range(f"{new_column_letter}:{new_column_letter}").EntireColumn.Insert()
+        tr_ws1.range(f"K{brow_value}").value = 'Destination Check'
+        tr_ws1.range(f"K{brow_value+1}").value = f'=OR({des_column_letter}{brow_value+1}="JOHNSTOWN",{des_column_letter}{brow_value+1}="LOVELAND",{des_column_letter}{brow_value+1}="GREELEY",{des_column_letter}{brow_value+1}="")'
+        if brow_value+1 == lr:
+            print("single rail car trace condiiton")
+            if tr_ws1.range(f"K{brow_value+1}").value == False:
+                tr_ws1.api.Range(f"{brow_value+1}:{brow_value+1}").EntireRow.Delete()  
+                send_check = False
+        else:
+            print("multiple cars for this commodity")
+            tr_ws1.range(f"{new_column_letter}{brow_value+1}:{new_column_letter}{lr}").api.Select()
+            tr_wb.app.api.Selection.FillDown()
+            tr_ws1.api.Range(f"{new_column_letter}{brow_value}").AutoFilter(Field:=f"{des_column_no+1}", Criteria1:=["False"],Operator:=1)
+            l4, sp_lst_row4,sp_address4 = row_range_calc(f"{new_column_letter}",tr_ws1,tr_wb)
+            l4 = [x for x in l4 if x > brow_value]
+            if len(l4)>0:
+                print("other destination cities found")
+                l4.sort(reverse=True)
+                for row in l4:
+                    color_list.append(int(tr_ws1.api.Range(f"A{l4[0]}").Interior.Color))
+                    tr_ws1.api.Range(f"{row}:{row}").EntireRow.Delete()        
+            tr_ws1.api.AutoFilterMode=False
+
+        if len(color_list)>0:
+            new_dict = {}
+            for j in Counter(color_list):
+                new_dict[color_dict[j]]=Counter(color_list)[j]
+            for key,value in new_dict.items():
+                value_values=tr_ws1.api.Cells.Find(What:=f"{key}", After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Value 
+                diff_amount = int(value_values.split(" ")[0]) - new_dict[key]
+                if diff_amount!=0:
+                    tr_ws1.api.Cells.Find(What:=f"{key}", After:=tr_ws1.api.Application.ActiveCell,
+                                        LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows,
+                                            SearchDirection:=win32c.SearchDirection.xlNext).Value = f"{diff_amount} {key}" 
+                else:
+                    del_row = tr_ws1.api.Cells.Find(What:=f"{key}", After:=tr_ws1.api.Application.ActiveCell,
+                                        LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows,
+                                            SearchDirection:=win32c.SearchDirection.xlNext).Row
+                    tr_ws1.api.Range(f"{del_row}:{del_row}").EntireRow.Delete()   
+
+        tr_ws1.api.Range(f"{new_column_letter}:{new_column_letter}").EntireColumn.Delete()
+        ###logic end ####
+
         tr_wb.save(combinedfile)
         time.sleep(1)
         tr_wb.app.quit()
         time.sleep(1)
-        # last_rovf = tr_ws1.range(f'A'+ str(tr_ws1.cells.last_cell.row)).end('up').row 
-        if key == 'CORN':
-            subb = 'Inbound YC/Reload HRW'
-            bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{subb} Cars Location {today_date}',mail_body=F"PFA",multiple_attachment_list = [combinedfile])
-        else:    
-            bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{key} Cars Location {today_date}',mail_body=F"PFA",multiple_attachment_list = [combinedfile])
+        if send_check:
+            if key == 'Inbound YC Reload HRW':
+                subb = 'Inbound YC/Reload HRW'
+                bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{subb} Cars Location {today_date.strftime("%m-%d-%Y")}',mail_body=F"PFA",multiple_attachment_list = [combinedfile])
+            else:    
+                bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{key} Cars Location {today_date.strftime("%m-%d-%Y")}',mail_body=F"PFA",multiple_attachment_list = [combinedfile])
     except Exception as e:
         print(f"Exception caught in combine_reports method: {e}")
         logging.info(f"Exception caught in combine_reports method: {e}")
@@ -426,11 +481,11 @@ def download_wait(directory, nfiles = None):
         raise e
 
 
-def combining_one_file(input_sheet):
+def combining_one_file(input_sheet,extracted_directory,empty_cars_directory):
         try:
+            if 'empty' in input_sheet:
+                extracted_directory = empty_cars_directory
             global wb
-
-            in_var =  input_sheet.split(".")[0]           
             retry=0
             while retry < 10:
                 try:
@@ -441,7 +496,7 @@ def combining_one_file(input_sheet):
                     retry+=1
                     if retry ==10:
                         raise e
-            
+            in_var =  input_sheet.split(".")[0] 
             wb.activate()            
             ws1 = wb.sheets[0]  
             ws1.activate() 
@@ -475,7 +530,8 @@ def combining_one_file(input_sheet):
                 df=ws1.range(f"A2").expand('table').options(pd.DataFrame,header=0,index=False).value
                 df= df[[5,8]]
                 df.columns = ["Car_No","Commodity"]
-
+            if 'empty' in input_sheet:
+                df = df[(df['Commodity'] == 'WHEAT') | (df['Commodity'] == 'CORN')]
             wb.app.quit() 
             return df  
         except Exception as e:
@@ -529,12 +585,13 @@ def login_and_download():
         logging.info('click on Login Button')
         WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "btnLogin"))).click()
         time.sleep(5)
-        dict1={"Enroute":'main_lblenrouteload',"Inbound":'main_lblinboundload',"Onhand":'main_lblonhandload'}
+        dict1={"Enroute":['main_lblenrouteload','main_lblenrouteempty'],"Inbound":['main_lblinboundload','main_lblinboundempty'],"Onhand":['main_lblonhandload','main_lblonhandempty']}
         for key, value in dict1.items():
-            car_no =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value))).text)
+            car_no =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[0]))).text)
+            empty_car =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[1]))).text)
             if car_no>0:
                 time.sleep(1)
-                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value))).click() 
+                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[0]))).click() 
                 time.sleep(1)
                 WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnExport"))).click()
                 driver.back()
@@ -545,6 +602,26 @@ def login_and_download():
                     shutil.move(files_location+"\\"+file,extracted_directory+"\\"+name)
             else:
                 logging.info(f"No Loaded railcars for {key}")
+            
+            if empty_car>0:
+                time.sleep(1)
+                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[1]))).click() 
+                time.sleep(1)
+                select_via = Select(WebDriverWait(driver, 180, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#main_ddlLE"))))
+                select_via.select_by_visible_text("E")
+                logger.info("selecting empty loads via drop down menu")
+                time.sleep(1)
+                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnSearch"))).click()
+                time.sleep(1)
+                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnExport"))).click()
+                driver.back()
+                time.sleep(1)
+                filesToUpload = os.listdir(os.getcwd() + "\\Raw_Files")
+                for file in filesToUpload:
+                    name ="empty"+key+"."+file.split(".")[-1]
+                    shutil.move(files_location+"\\"+file,empty_cars_directory+"\\"+name)  
+            else:
+                logging.info(f"No empty railcars for {key}")           
 
     except Exception as e:
         print(f"Exception caught in login_and_download method: {e}")
@@ -609,17 +686,20 @@ def main():
         remove_existing_files(files_location)
         remove_existing_files(extracted_directory)
         remove_existing_files(trace_directory)
+        remove_existing_files(empty_cars_directory)
         destination_folder  = movefiles(final_directory)
         # no_of_rows=
         login_and_download()
         dfs=pd.DataFrame()
-        for files in os.listdir(extracted_directory):
-            try:
-                df = combining_one_file(files)
-                dfs = pd.concat([df,dfs])
-            except Exception as e:
-                logging.exception(str(e))
-                raise e
+        directory_list = [extracted_directory,empty_cars_directory]
+        for directory in directory_list:
+            for files in os.listdir(directory):
+                try:
+                    df = combining_one_file(files,extracted_directory,empty_cars_directory)
+                    dfs = pd.concat([df,dfs])
+                except Exception as e:
+                    logging.exception(str(e))
+                    raise e
         dfs = dfs.reset_index(drop=True)    
         login_to_steelroads()    
         processing_excel(dfs)    
@@ -660,7 +740,7 @@ if __name__ == "__main__":
         filename=logfile)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    directories_created=["Raw_Files","Logs","Renamed Files","Trace_report"]
+    directories_created=["Raw_Files","Logs","Renamed Files","Trace_report","Empty_Rail_Cars"]
     for directory in directories_created:
         path3 = os.path.join(os.getcwd(),directory)  
         try:
@@ -673,6 +753,7 @@ if __name__ == "__main__":
     extracted_directory=os.getcwd() + "\\Renamed Files"
     trace_directory=os.getcwd() + "\\Trace_report"
     final_directory=os.getcwd() + "\\final_report"
+    empty_cars_directory=os.getcwd() + "\\Empty_Rail_Cars"
     logging.info('setting paTH TO download')
     path = os.getcwd() + '\\Raw_Files'
     logging.info('SETTING PROFILE SETTINGS FOR FIREFOX')
