@@ -375,14 +375,6 @@ def combine_reports(des_text,key):
             tr_ws1.api.Range("2:2").EntireRow.Insert()
             tr_ws1.api.Range("A2").Value = f"{pa_count} On Hand"
             interior_coloring(colour_value="65535",cellrange=f"A2",working_sheet=tr_ws1,working_workbook=tr_wb)
-        if len(comp_list)>0:
-            for car_no in comp_list:
-                tr_ws1.activate()
-                tr_ws1.api.Cells.Find(What:=car_no, After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Activate()
-                bcell_value = tr_ws1.api.Application.ActiveCell.Address.replace("$","")
-                brow_value = re.findall("\d+",bcell_value)[0]
-                interior_coloring(colour_value="255",cellrange=f"A{int(brow_value)}:N{int(brow_value)}",working_sheet=tr_ws1,working_workbook=tr_wb)
-                # check = True 
         combinedfile = final_directory+"\\"+f"Trace_Report_{key}.xlsx"
         tr_ws1.autofit()
         tr_ws1.api.Columns("A:A").ColumnWidth = 11.14
@@ -418,7 +410,7 @@ def combine_reports(des_text,key):
                 print("other destination cities found")
                 l4.sort(reverse=True)
                 for row in l4:
-                    color_list.append(int(tr_ws1.api.Range(f"A{l4[0]}").Interior.Color))
+                    color_list.append(int(tr_ws1.api.Range(f"A{row}").Interior.Color))   
                     tr_ws1.api.Range(f"{row}:{row}").EntireRow.Delete()        
             tr_ws1.api.AutoFilterMode=False
 
@@ -426,22 +418,34 @@ def combine_reports(des_text,key):
             new_dict = {}
             for j in Counter(color_list):
                 new_dict[color_dict[j]]=Counter(color_list)[j]
-            for key,value in new_dict.items():
-                value_values=tr_ws1.api.Cells.Find(What:=f"{key}", After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Value 
-                diff_amount = int(value_values.split(" ")[0]) - new_dict[key]
+            for key2,value in new_dict.items():
+                tr_ws1.api.Range(f"A:A").Select()
+                value_values=tr_ws1.api.Range(f"A:A").Find(What:=f"{key2}", After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Value    
+                diff_amount = int(value_values.split(" ")[0]) - new_dict[key2]
                 if diff_amount!=0:
-                    tr_ws1.api.Cells.Find(What:=f"{key}", After:=tr_ws1.api.Application.ActiveCell,
+                    tr_ws1.api.Cells.Find(What:=f"{key2}", After:=tr_ws1.api.Application.ActiveCell,
                                         LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows,
-                                            SearchDirection:=win32c.SearchDirection.xlNext).Value = f"{diff_amount} {key}" 
+                                            SearchDirection:=win32c.SearchDirection.xlNext).Value = f"{diff_amount} {key2}" 
                 else:
-                    del_row = tr_ws1.api.Cells.Find(What:=f"{key}", After:=tr_ws1.api.Application.ActiveCell,
+                    del_row = tr_ws1.api.Cells.Find(What:=f"{key2}", After:=tr_ws1.api.Application.ActiveCell,
                                         LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows,
                                             SearchDirection:=win32c.SearchDirection.xlNext).Row
                     tr_ws1.api.Range(f"{del_row}:{del_row}").EntireRow.Delete()   
 
         tr_ws1.api.Range(f"{new_column_letter}:{new_column_letter}").EntireColumn.Delete()
         ###logic end ####
+        if len(comp_list)>0:
+            for car_no in comp_list:
+                tr_ws1.activate()
+                try:
+                    tr_ws1.api.Cells.Find(What:=car_no, After:=tr_ws1.api.Application.ActiveCell,LookIn:=win32c.FindLookIn.xlFormulas,LookAt:=win32c.LookAt.xlPart, SearchOrder:=win32c.SearchOrder.xlByRows, SearchDirection:=win32c.SearchDirection.xlNext).Activate()
+                except:
+                    continue     
+                bcell_value = tr_ws1.api.Application.ActiveCell.Address.replace("$","")
+                brow_value = re.findall("\d+",bcell_value)[0]
+                interior_coloring(colour_value="255",cellrange=f"A{int(brow_value)}:N{int(brow_value)}",working_sheet=tr_ws1,working_workbook=tr_wb)
 
+                # check = True 
         tr_wb.save(combinedfile)
         time.sleep(1)
         tr_wb.app.quit()
