@@ -451,12 +451,15 @@ def combine_reports(des_text,key):
         time.sleep(1)
         tr_wb.app.quit()
         time.sleep(1)
+        nl = '<br>'
         if send_check:
             if key == 'Inbound YC Reload HRW':
                 subb = 'Inbound YC/Reload HRW'
-                bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{subb} Cars Location {today_date.strftime("%m-%d-%Y")}',mail_body=F"PFA",multiple_attachment_list = [combinedfile])
-            else:    
-                bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{key} Cars Location {today_date.strftime("%m-%d-%Y")}',mail_body=F"PFA",multiple_attachment_list = [combinedfile])
+                mailbody = f"{nl}<strong>Hello</strong> {nl}{nl} Please find attached rail trace sheet for <strong>{subb}</strong> Cars Location.{nl}{nl}Thank you !!!"
+                bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{subb} Cars Location {today_date.strftime("%m-%d-%Y")}',mail_body=F"{mailbody}",multiple_attachment_list = [combinedfile])
+            else:
+                mailbody = f"{nl}<strong>Hello</strong> {nl}{nl} Please find attached rail trace sheet for <strong>{key}</strong> Cars Location.{nl}{nl}Thank you !!!"    
+                bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'{key} Cars Location {today_date.strftime("%m-%d-%Y")}',mail_body=F"{mailbody}",multiple_attachment_list = [combinedfile])
     except Exception as e:
         print(f"Exception caught in combine_reports method: {e}")
         logging.info(f"Exception caught in combine_reports method: {e}")
