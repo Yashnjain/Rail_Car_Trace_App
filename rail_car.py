@@ -412,7 +412,9 @@ def combine_reports(des_text,key):
                 for row in l4:
                     if int(tr_ws1.api.Range(f"A{row}").Interior.Color)!=16777215: 
                         color_list.append(int(tr_ws1.api.Range(f"A{row}").Interior.Color))   
-                        tr_ws1.api.Range(f"{row}:{row}").EntireRow.Delete()        
+                        tr_ws1.api.Range(f"{row}:{row}").EntireRow.Delete()    
+                    else:
+                        tr_ws1.api.Range(f"{row}:{row}").EntireRow.Delete()       
             tr_ws1.api.AutoFilterMode=False
 
         if len(color_list)>0:
