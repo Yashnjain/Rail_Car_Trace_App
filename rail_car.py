@@ -199,6 +199,10 @@ def tracereport_dwonload():
             WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div[2]/form/table/tbody/tr[11]/td/table/tbody/tr[1]/td[2]/select"))).click()
             WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div[2]/form/table/tbody/tr[11]/td/table/tbody/tr[1]/td[2]/select/option[7]"))).click()
             logger.info("running trace")
+            time.sleep(1)
+            element = driver.find_element(By.CSS_SELECTOR, "input[value='Run']")
+            driver.execute_script("arguments[0].scrollIntoView();", element)
+            time.sleep(1)
             WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input[value='Run']"))).click()
             sec_page = driver.window_handles[1] 
             driver.switch_to.window(sec_page)
@@ -449,6 +453,11 @@ def combine_reports(des_text,key):
                 interior_coloring(colour_value="255",cellrange=f"A{int(brow_value)}:N{int(brow_value)}",working_sheet=tr_ws1,working_workbook=tr_wb)
 
                 # check = True 
+        ###logic for correct trace number###
+        lst_no_rw = tr_ws1.range(f'O'+ str(tr_ws1.cells.last_cell.row)).end('up').row
+        first_no_rw = tr_ws1.range(f'O'+ str(tr_ws1.cells.last_cell.row)).end('up').end('up').row
+        no_of_cars_traced =  lst_no_rw - first_no_rw  
+        replace_value =  re.findall("\d+",des_text)[-1]   
         tr_wb.save(combinedfile)
         time.sleep(1)
         tr_wb.app.quit()
@@ -560,6 +569,10 @@ def processing_excel(dfs):
             print(f"commodity - {value}")
             # ws1.activate() 
             fil_dfs = dfs[dfs['Commodity'].isin(value)] 
+            if key == 'Inbound YC Reload HRW':
+                print("Inbound YC Reload HRW found")
+                inbound_sheet = os.getcwd() + "\\inbound yc reload hrw\\Inbound YC Reload HRW.xlsx"
+                fil_dfs = pd.read_excel(inbound_sheet)
             if len(fil_dfs)>0:
                 fil_dfs['Car_No'].to_clipboard(index=False,header=None)
             else:
@@ -807,6 +820,7 @@ if __name__ == "__main__":
     # steel_password = 'Wheat010'
     # username= 'gwrwpnt'
     # password = 'Wheat02'
+    receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com'
     # receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com,bharat.pathak@biourja.com'
     # # check= None
     # #snowflake variables
