@@ -611,12 +611,13 @@ def login_and_download():
         dict1={"Enroute":['main_lblenrouteload','main_lblenrouteempty'],"Inbound":['main_lblinboundload','main_lblinboundempty'],"Onhand":['main_lblonhandload','main_lblonhandempty']}
         for key, value in dict1.items():
             car_no =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[0]))).text)
-            empty_car =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[1]))).text)
+            # empty_car =int(WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[1]))).text)
             if car_no>0:
                 time.sleep(1)
                 WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[0]))).click() 
                 time.sleep(1)
                 WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnExport"))).click()
+                time.sleep(1)
                 driver.back()
                 time.sleep(1)
                 filesToUpload = os.listdir(os.getcwd() + "\\Raw_Files")
@@ -626,25 +627,26 @@ def login_and_download():
             else:
                 logging.info(f"No Loaded railcars for {key}")
             
-            if empty_car>0:
-                time.sleep(1)
-                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[1]))).click() 
-                time.sleep(1)
-                select_via = Select(WebDriverWait(driver, 180, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#main_ddlLE"))))
-                select_via.select_by_visible_text("E")
-                logger.info("selecting empty loads via drop down menu")
-                time.sleep(1)
-                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnSearch"))).click()
-                time.sleep(1)
-                WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnExport"))).click()
-                driver.back()
-                time.sleep(1)
-                filesToUpload = os.listdir(os.getcwd() + "\\Raw_Files")
-                for file in filesToUpload:
-                    name ="empty"+key+"."+file.split(".")[-1]
-                    shutil.move(files_location+"\\"+file,empty_cars_directory+"\\"+name)  
-            else:
-                logging.info(f"No empty railcars for {key}")           
+            # if empty_car>0:
+            #     time.sleep(1)
+            #     WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, value[1]))).click() 
+            #     time.sleep(1)
+            #     select_via = Select(WebDriverWait(driver, 180, poll_frequency=1).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#main_ddlLE"))))
+            #     select_via.select_by_visible_text("E")
+            #     logger.info("selecting empty loads via drop down menu")
+            #     time.sleep(1)
+            #     WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnSearch"))).click()
+            #     time.sleep(1)
+            #     WebDriverWait(driver, 90, poll_frequency=1).until(EC.element_to_be_clickable((By.ID, "main_btnExport"))).click()
+            #     time.sleep(1)
+            #     driver.back()
+            #     time.sleep(1)
+            #     filesToUpload = os.listdir(os.getcwd() + "\\Raw_Files")
+            #     for file in filesToUpload:
+            #         name ="empty"+key+"."+file.split(".")[-1]
+            #         shutil.move(files_location+"\\"+file,empty_cars_directory+"\\"+name)  
+            # else:
+            #     logging.info(f"No empty railcars for {key}")           
 
     except Exception as e:
         print(f"Exception caught in login_and_download method: {e}")
@@ -820,8 +822,8 @@ if __name__ == "__main__":
     # steel_password = 'Wheat010'
     # username= 'gwrwpnt'
     # password = 'Wheat02'
-    receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com'
-    # receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com,bharat.pathak@biourja.com'
+    # receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com'
+    receiver_email='yashn.jain@biourja.com,ramm@westplainsllc.com,bharat.pathak@biourja.com,amits@westplainsllc.com,astha.jha@biourja.com'
     # # check= None
     # #snowflake variables
     # database = ''
