@@ -361,8 +361,8 @@ def combine_reports(des_text,key):
                 if len(l3)>0:
                     #other color value =#9FA459
                     interior_coloring(colour_value="5874847",cellrange=f"A{l3[0]}:N{l3[-1]}",working_sheet=tr_ws1,working_workbook=tr_wb)
-                else:
-                    interior_coloring(colour_value="5874847",cellrange=f"A{l3[0]}:N{l3[0]}",working_sheet=tr_ws1,working_workbook=tr_wb)
+                # else:
+                #     interior_coloring(colour_value="5874847",cellrange=f"A{l3[0]}:N{l3[0]}",working_sheet=tr_ws1,working_workbook=tr_wb)
                 diff_count = len(l3)
                 tr_ws1.api.Range(f"D1").AutoFilter(Field:=8)
         tr_ws1.api.Range(f"D1").AutoFilter(Field:=4) 
@@ -737,6 +737,7 @@ def main():
         log_json='[{"JOB_ID": "'+str(job_id)+'","CURRENT_DATETIME": "'+str(datetime.now())+'"}]'
         bu_alerts.bulog(process_name= processname,database=database,status='COMPLETED',table_name=table_name,
             row_count=no_of_rows, log=log_json, warehouse=warehouse,process_owner=process_owner)  
+
         bu_alerts.send_mail(receiver_email = receiver_email,mail_subject =f'JOB SUCCESS - {job_name}',mail_body = f'{job_name} completed successfully, Attached Logs',attachment_location = logfile)
     except Exception as e:
         log_json='[{"JOB_ID": "'+str(job_id)+'","CURRENT_DATETIME": "'+str(datetime.now())+'"}]'
